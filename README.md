@@ -40,6 +40,15 @@ library(forestable)
 
 table <- readxl::read_excel(here::here("inst/extdata/example_figure_data.xlsx"))
 
+# indent the subgroup if there is a number in the placebo column
+table$Subgroup <- ifelse(is.na(table$Placebo), 
+                         table$Subgroup,
+                         paste0("   ", table$Subgroup))
+
+# remove indent of the first row
+table$Subgroup[1] <- "All Patients"
+
+# use forestable to create the table with forest plot
 forestable(left_side_data = table[,1:3],
            estimate = table$Estimate,
            ci_low = table$`CI low`,
@@ -55,6 +64,40 @@ knitr::include_graphics(here::here("man/figures/forestable_plot.png"))
 ```
 
 <img src="D:/Projects/forestable/man/figures/forestable_plot.png" width="100%" />
+
+Forestable handles the alignment of the graph and the table
+automatically, so figures with fewer rows or columns should work by
+simply passing a smaller data frame to the function:
+
+``` r
+forestable(left_side_data = table[1:12,1:3],
+           estimate = table$Estimate[1:12],
+           ci_low = table$`CI low`[1:12],
+           ci_high = table$`CI high`[1:12],
+           display = FALSE,
+           file_path = here::here("man/figures/fewer_rows.png"))
+#> Warning: Removed 3 rows containing missing values (geom_point).
+#> Warning: Removed 3 rows containing missing values (geom_errorbarh).
+
+knitr::include_graphics(here::here("man/figures/fewer_rows.png"))
+```
+
+<img src="D:/Projects/forestable/man/figures/fewer_rows.png" width="100%" />
+
+``` r
+forestable(left_side_data = table[,1],
+           estimate = table$Estimate,
+           ci_low = table$`CI low`,
+           ci_high = table$`CI high`,
+           display = FALSE,
+           file_path = here::here("man/figures/fewer_cols.png"))
+#> Warning: Removed 8 rows containing missing values (geom_point).
+#> Warning: Removed 8 rows containing missing values (geom_errorbarh).
+
+knitr::include_graphics(here::here("man/figures/fewer_cols.png"))
+```
+
+<img src="D:/Projects/forestable/man/figures/fewer_cols.png" width="100%" />
 
 ## To Do
 

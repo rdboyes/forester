@@ -87,7 +87,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
   right_width <- find_width(right_side_data)
 
   if(blank_na == TRUE){
-    left_width <- dplyr::mutate_all(left_width, as.character)
+    left_side_data <- dplyr::mutate_all(left_side_data, as.character)
     left_side_data[is.na(left_side_data)] <- " "
   }
 
