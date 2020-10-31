@@ -1,6 +1,6 @@
 #' Create a forest plot column in a table
 #'
-#' Creates an png image with the column inserted in the supplied data frame.
+#' Creates an png image with the forest plot column inserted in the supplied data frame.
 #'
 #' @param left_side_data A data frame with the information to be displayed to the left of the forest plot.
 #' @param estimate A vector containing the point estimates to be displayed in the forest plot.
@@ -46,7 +46,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
   tdata <- gdata
 
-  tdata <- tdata %>% mutate_all(~sprintf(.,
+  tdata <- dplyr::mutate_all(tdata, ~sprintf(.,
                       fmt = paste0('%#.', estimate_precision,'f')
                    ))
 
@@ -60,10 +60,6 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
 
   }
-
-  # checks
-
-  assertthat::are_equal(nrow(left_side_data), nrow(right_side_data))
 
   # calculated quantities
 
@@ -122,14 +118,14 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
   # calculated patchwork layout
 
-  layout <- c(area(t = 1,
-                   b = nrow(gdata),
-                   l = 1,
-                   r = total_pw),
-            area(t = 1,
-                 b = (nrow(gdata) + 1),
-                 l = left_pw + 1,
-                 r = total_pw - right_pw + 1))
+  patchwork::layout <- c(patchwork::area(t = 1,
+                           b = nrow(gdata),
+                           l = 1,
+                           r = total_pw),
+                         patchwork::area(t = 1,
+                           b = (nrow(gdata) + 1),
+                           l = left_pw + 1,
+                           r = total_pw - right_pw + 1))
 
   gdata$row_num <- (nrow(gdata) - 1):0
 
@@ -138,16 +134,16 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
   ########## the main figure - this will be overlaid on the table ##############
 
-  center <- ggplot(data = gdata, aes(y = row_num, x = estimate)) +
-    geom_point(size = 3.25) + # the point estimates, with big dots
-    geom_errorbarh(aes(y = row_num,
+  center <- ggplot2::ggplot(data = gdata, aes(y = row_num, x = estimate)) +
+    ggplot2::geom_point(size = 3.25) + # the point estimates, with big dots
+    ggplot2::geom_errorbarh(aes(y = row_num,
                        xmin = ci_low,
                        xmax = ci_high),
                    height = .25) + # the CIs, with short ends
-    theme_classic() + # base theme
-    scale_y_continuous(expand = c(0,0), #remove padding
+    ggplot2::theme_classic() + # base theme
+    ggplot2::scale_y_continuous(expand = c(0,0), #remove padding
                        limits = c(y_low, y_high)) + # position dots
-    theme(axis.title.y = element_blank(), # remove axis, make bg transparent
+    ggplot2::theme(axis.title.y = element_blank(), # remove axis, make bg transparent
           axis.text.y = element_blank(),
           axis.ticks.y = element_blank(),
           axis.line.y = element_blank(),
@@ -159,19 +155,19 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
           panel.grid.minor = element_blank(),
           legend.background = element_rect(fill = "transparent"),
           legend.box.background = element_rect(fill = "transparent")) +
-    geom_vline(xintercept = null_line_at, linetype = "dashed") + # null line
-    scale_x_continuous(labels = scales::number_format(accuracy = 0.1)) +
-    xlab("")
+    ggplot2::geom_vline(xintercept = null_line_at, linetype = "dashed") + # null line
+    ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1)) +
+    ggplot2::xlab("")
 
   ######### using patchwork, overlay the ggplot on the table ###################
 
-  final <- wrap_elements(tableGrob(tdata_print, theme = theme, rows = NULL)) +
+  final <- patchwork::wrap_elements(gridExtra::tableGrob(tdata_print, theme = theme, rows = NULL)) +
     center +
-    plot_layout(design = layout)
+    patchwork::plot_layout(design = layout)
 
   ######### save the plot as a png, then display it with magick ################
 
-  ggsave(dpi = dpi, height = (nrow(gdata) + 3)/3.85,
+  ggplot2::ggsave(dpi = dpi, height = (nrow(gdata) + 3)/3.85,
          width = total_width/10 + 1, units = "in",
          filename = file_path)
 
@@ -180,7 +176,5 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
     plot(img)
   }
 }
-
-
 
 
