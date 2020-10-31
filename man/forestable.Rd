@@ -14,7 +14,7 @@ forestable(
   estimate_precision = 1,
   ggplot_is_x_times_right_width = 1.2,
   null_line_at = 0,
-  file_path = "forestable_plot.png",
+  file_path = here::here("fig/forestable_plot.png"),
   dpi = 600,
   display = TRUE
 )
