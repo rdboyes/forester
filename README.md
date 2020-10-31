@@ -102,7 +102,7 @@ knitr::include_graphics(here::here("man/figures/fewer_cols.png"))
 ## To Do
 
   - Additional font support
-  - Additional plot types, especially ridgeline plots
+  - Additional plot types, including ridgeline plots
 
 # References
 
