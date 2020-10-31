@@ -2,17 +2,17 @@
 #'
 #' Creates an png image with the column inserted in the supplied data frame.
 #'
-#' @param left_side_data dataframe
-#' @param estimate vector
-#' @param ci_low vector
-#' @param ci_high vector
-#' @param right_side_data dataframe (optional)
-#' @param theme theme object for table (optional)
-#' @param estimate_precision number of decimal places on estimate (default 1)
-#' @param ggplot_is_x_times_right_width width of forest plot (default 1.2)
-#' @param null_line_at numeric, default 0
-#' @param file_path where to save the image, default forestable_plot.png
-#' @param dpi image resolution in dpi, default 600
+#' @param left_side_data A data frame with the information to be displayed to the left of the forest plot.
+#' @param estimate A vector containing the point estimates to be displayed in the forest plot.
+#' @param ci_low A vector containing the lower confidence bounds
+#' @param ci_high A vector containing the upper confidence bounds
+#' @param right_side_data A data frame (optional) containing the information to be displayed on the right side of the table. If not supplied, an Estimate column is generated automatically.
+#' @param theme A theme object for the table (optional)
+#' @param estimate_precision Integer. The number of decimal places on the estimate (default 1)
+#' @param ggplot_is_x_times_right_width The width of forest plot relative to the right side of the table (default 1.2)
+#' @param null_line_at numeric, default 0. Change to 1 if using relative measures such as OR, RR.
+#' @param file_path Where to save the image, default "forestable_plot.png" in the current working directory.
+#' @param dpi The image resolution in dpi, default 600
 #'
 #' @return image
 #' @export
