@@ -1,3 +1,23 @@
+#' Create a forest plot column in a table
+#'
+#' Creates an png image with the column inserted in the supplied data frame.
+#'
+#' @param left_side_data dataframe
+#' @param estimate vector
+#' @param ci_low vector
+#' @param ci_high vector
+#' @param right_side_data dataframe (optional)
+#' @param theme theme object for table (optional)
+#' @param estimate_precision number of decimal places on estimate (default 1)
+#' @param ggplot_is_x_times_right_width width of forest plot (default 1.2)
+#' @param null_line_at numeric, default 0
+#' @param file_path where to save the image, default forestable_plot.png
+#' @param dpi image resolution in dpi, default 600
+#'
+#' @return image
+#' @export
+#'
+#' @examples
 forestable <- function(left_side_data, estimate, ci_low, ci_high,
                     right_side_data = NULL,
                     theme = NULL,

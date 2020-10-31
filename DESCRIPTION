@@ -1,11 +1,13 @@
 Package: forestable
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Create a Forest Plot Column in Any Table
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: Randy Boyes
+Maintainer: Randy Boyes <randy.boyes@gmail.com>
+Description: This package uses patchwork to overlay forest plots created in 
+  ggplot on top of tables. The default functionality is to add a forest plot
+  and estimate column to the right side of any table, but it can be used to 
+  add a forest plot column in the middle of any table.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
