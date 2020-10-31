@@ -1,23 +1,3 @@
-# trying to package up the forest plot table
-
-# packages required
-
-library(dplyr)
-library(ggplot2)
-library(patchwork)
-library(magick)
-library(gridExtra)
-
-# inputs
-
-test <- readxl::read_excel(here::here("example_figure_data.xlsx"))
-
-left_side_data <- test[,1:3]
-
-estimate <- test$Estimate
-ci_low <- test$`CI low`
-ci_high <- test$`CI high`
-
 forestable <- function(left_side_data, estimate, ci_low, ci_high,
                     right_side_data = NULL,
                     theme = NULL,
@@ -178,10 +158,6 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
 }
 
-forestable(left_side_data = left_side_data[1:30,],
-           estimate = estimate[1:30],
-           ci_low = ci_low[1:30],
-           ci_high = ci_high[1:30])
 
 
 
