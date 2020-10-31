@@ -17,4 +17,6 @@ Imports:
     ggplot2,
     patchwork,
     magick,
-    gridExtra
+    gridExtra,
+    scales,
+    units

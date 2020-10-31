@@ -30,7 +30,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
                     display = TRUE){
 
   if(is.null(theme)){
-    theme <- ttheme_minimal(core=list(
+    theme <- gridExtra::ttheme_minimal(core=list(
       fg_params = list(hjust = 0, x = 0.05, fontfamily = "mono"),
       bg_params = list(fill=c(rep(c("#eff3f2", "white"), length.out=4)))
     ),
@@ -67,7 +67,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
     num_of_rows <- nrow(data)
     num_of_cols <- ncol(data)
 
-    print_data <- data %>% mutate_all(as.character)
+    print_data <- dplyr::mutate_all(data, as.character)
 
     num_char_across <- 0
     width <- 0
@@ -118,14 +118,14 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
   # calculated patchwork layout
 
-  patchwork::layout <- c(patchwork::area(t = 1,
-                           b = nrow(gdata),
-                           l = 1,
-                           r = total_pw),
-                         patchwork::area(t = 1,
-                           b = (nrow(gdata) + 1),
-                           l = left_pw + 1,
-                           r = total_pw - right_pw + 1))
+  layout <- c(patchwork::area(t = 1,
+                b = nrow(gdata),
+                l = 1,
+                r = total_pw),
+              patchwork::area(t = 1,
+                b = (nrow(gdata) + 1),
+                l = left_pw + 1,
+                r = total_pw - right_pw + 1))
 
   gdata$row_num <- (nrow(gdata) - 1):0
 
@@ -134,27 +134,27 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
   ########## the main figure - this will be overlaid on the table ##############
 
-  center <- ggplot2::ggplot(data = gdata, aes(y = row_num, x = estimate)) +
+  center <- ggplot2::ggplot(data = gdata, ggplot2::aes(y = row_num, x = estimate)) +
     ggplot2::geom_point(size = 3.25) + # the point estimates, with big dots
-    ggplot2::geom_errorbarh(aes(y = row_num,
-                       xmin = ci_low,
-                       xmax = ci_high),
-                   height = .25) + # the CIs, with short ends
+    ggplot2::geom_errorbarh(ggplot2::aes(y = row_num,
+          xmin = ci_low,
+          xmax = ci_high),
+          height = .25) + # the CIs, with short ends
     ggplot2::theme_classic() + # base theme
     ggplot2::scale_y_continuous(expand = c(0,0), #remove padding
-                       limits = c(y_low, y_high)) + # position dots
-    ggplot2::theme(axis.title.y = element_blank(), # remove axis, make bg transparent
-          axis.text.y = element_blank(),
-          axis.ticks.y = element_blank(),
-          axis.line.y = element_blank(),
+          limits = c(y_low, y_high)) + # position dots
+    ggplot2::theme(axis.title.y = ggplot2::element_blank(), # remove axis, make bg transparent
+          axis.text.y = ggplot2::element_blank(),
+          axis.ticks.y = ggplot2::element_blank(),
+          axis.line.y = ggplot2::element_blank(),
           axis.ticks.length.x = unit(.1, "in"),
-          text = element_text(family = "mono", size = 12),
-          panel.background = element_rect(fill = "transparent"),
-          plot.background = element_rect(fill = "transparent", color = NA),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          legend.background = element_rect(fill = "transparent"),
-          legend.box.background = element_rect(fill = "transparent")) +
+          text = ggplot2::element_text(family = "mono", size = 12),
+          panel.background = ggplot2::element_rect(fill = "transparent"),
+          plot.background = ggplot2::element_rect(fill = "transparent", color = NA),
+          panel.grid.major = ggplot2::element_blank(),
+          panel.grid.minor = ggplot2::element_blank(),
+          legend.background = ggplot2::element_rect(fill = "transparent"),
+          legend.box.background = ggplot2::element_rect(fill = "transparent")) +
     ggplot2::geom_vline(xintercept = null_line_at, linetype = "dashed") + # null line
     ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1)) +
     ggplot2::xlab("")

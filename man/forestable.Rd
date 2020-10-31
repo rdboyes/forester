@@ -15,7 +15,8 @@ forestable(
   ggplot_is_x_times_right_width = 1.2,
   null_line_at = 0,
   file_path = "forestable_plot.png",
-  dpi = 600
+  dpi = 600,
+  display = TRUE
 )
 }
 \arguments{
@@ -40,10 +41,12 @@ forestable(
 \item{file_path}{Where to save the image, default "forestable_plot.png" in the current working directory.}
 
 \item{dpi}{The image resolution in dpi, default 600}
+
+\item{display}{Show the table in RStudio viewer? Default TRUE}
 }
 \value{
 image
 }
 \description{
-Creates an png image with the column inserted in the supplied data frame.
+Creates an png image with the forest plot column inserted in the supplied data frame.
 }
