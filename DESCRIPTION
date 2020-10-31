@@ -22,4 +22,5 @@ Imports:
     units,
     grid,
     here,
-    rlang
+    rlang,
+    systemfonts

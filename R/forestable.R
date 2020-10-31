@@ -15,6 +15,7 @@
 #' @param dpi The image resolution in dpi, default 600
 #' @param display Show the table in RStudio viewer? Default TRUE
 #' @param blank_na Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown
+#' @param font_family The font to use for the ggplot and table
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -30,15 +31,16 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
                     file_path = here::here("forestable_plot.png"),
                     dpi = 600,
                     display = TRUE,
-                    blank_na = TRUE){
+                    blank_na = TRUE,
+                    font_family = "mono"){
 
   if(is.null(theme)){
     theme <- gridExtra::ttheme_minimal(core=list(
-      fg_params = list(hjust = 0, x = 0.05, fontfamily = "mono"),
+      fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
       bg_params = list(fill=c(rep(c("#eff3f2", "white"), length.out=4)))
     ),
     colhead = list(fg_params = list(hjust = 0, x = 0.05,
-                                    fontfamily = "mono"),
+                                    fontfamily = font_family),
                    bg_params = list(fill = "white"))
     )
   }
@@ -62,9 +64,9 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
   }
 
-  # calculated quantities
+  # finds width in number of characters for monospaced font
 
-  find_width <- function(data){
+  find_width_mono <- function(data){
     num_of_rows <- nrow(data)
     num_of_cols <- ncol(data)
 
@@ -77,14 +79,42 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
       for(j in 1:num_of_rows){
         num_char_across[j] <- nchar(print_data[j, i])
       }
-      width[i] <- max(max(num_char_across, na.rm = T),
-                      nchar(colnames(print_data)[i]), na.rm = T)
+      width[i] <- max(max(num_char_across, na.rm = TRUE),
+                      nchar(colnames(print_data)[i]), na.rm = TRUE)
     }
-    return(sum(width, na.rm = T))
+    return(sum(width, na.rm = TRUE))
   }
 
-  left_width <- find_width(left_side_data)
-  right_width <- find_width(right_side_data)
+  # finds width using shape_string from the systemfonts package
+  # if not using monospaced font
+
+  find_width <- function(data){
+    num_of_rows <- nrow(data)
+    num_of_cols <- ncol(data)
+
+    print_data <- dplyr::mutate_all(data, as.character)
+
+    width <- 0
+
+    for (i in 1:num_of_cols){
+      temp <- systemfonts::shape_string(print_data[, i])
+      temp_col <- systemfonts::shape_string(colnames(print_data)[i])
+      width[i] <- max(max(temp$metrics$width, na.rm = TRUE),
+                      temp_col$metrics$width, na.rm = TRUE)
+    }
+    return(sum(width, na.rm = TRUE)/7.2)
+  }
+
+  # calculate widths for each side with the appropriate function
+
+  if(font_family == "mono"){
+    left_width <- find_width_mono(left_side_data)
+    right_width <- find_width_mono(right_side_data)
+  }else{
+    left_width <- find_width(left_side_data)
+    right_width <- find_width(right_side_data)
+  }
+
 
   if(blank_na == TRUE){
     left_side_data <- dplyr::mutate_all(left_side_data, as.character)
@@ -155,7 +185,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
           axis.ticks.y = ggplot2::element_blank(),
           axis.line.y = ggplot2::element_blank(),
           axis.ticks.length.x = grid::unit(.1, "in"),
-          text = ggplot2::element_text(family = "mono", size = 12),
+          text = ggplot2::element_text(family = font_family, size = 12),
           panel.background = ggplot2::element_rect(fill = "transparent"),
           plot.background = ggplot2::element_rect(fill = "transparent", color = NA),
           panel.grid.major = ggplot2::element_blank(),
