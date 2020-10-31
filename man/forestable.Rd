@@ -16,7 +16,8 @@ forestable(
   null_line_at = 0,
   file_path = here::here("fig/forestable_plot.png"),
   dpi = 600,
-  display = TRUE
+  display = TRUE,
+  blank_na = TRUE
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ forestable(
 \item{dpi}{The image resolution in dpi, default 600}
 
 \item{display}{Show the table in RStudio viewer? Default TRUE}
+
+\item{blank_na}{Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown}
 }
 \value{
 image

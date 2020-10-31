@@ -14,6 +14,7 @@
 #' @param file_path Where to save the image, default "forestable_plot.png" in the current working directory.
 #' @param dpi The image resolution in dpi, default 600
 #' @param display Show the table in RStudio viewer? Default TRUE
+#' @param blank_na Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -26,9 +27,10 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
                     estimate_precision = 1,
                     ggplot_is_x_times_right_width = 1.2,
                     null_line_at = 0,
-                    file_path = here::here("fig/forestable_plot.png"),
+                    file_path = here::here("forestable_plot.png"),
                     dpi = 600,
-                    display = TRUE){
+                    display = TRUE,
+                    blank_na = TRUE){
 
   if(is.null(theme)){
     theme <- gridExtra::ttheme_minimal(core=list(
@@ -45,20 +47,18 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
                     ci_low = ci_low,
                     ci_high = ci_high)
 
-  tdata <- gdata
-
-  tdata <- dplyr::mutate_all(tdata, ~sprintf(.,
-                      fmt = paste0('%#.', estimate_precision,'f')
-                   ))
-
-  tdata[tdata == "NA"] <- " "
-
   if(is.null(right_side_data)){
+    tdata <- gdata
+
+    tdata <- dplyr::mutate_all(tdata, ~sprintf(.,
+        fmt = paste0('%#.', estimate_precision,'f')
+    ))
+
+    tdata[tdata == "NA"] <- " "
     # pretty formatting for confidence intervals
     right_side_data <- data.frame(Estimate = ifelse(tdata$estimate == " ",
                                   " ", paste0(tdata$estimate, " (", tdata$ci_low,
                                       " to ", tdata$ci_high, ")")))
-
 
   }
 
@@ -77,9 +77,14 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
       for(j in 1:num_of_rows){
         num_char_across[j] <- nchar(print_data[j, i])
       }
-      width[i] <- max(max(num_char_across, na.rm = T), nchar(colnames(print_data)[i]), na.rm = T)
+      width[i] <- max(max(num_char_across, na.rm = T),
+                      nchar(colnames(print_data)[i]), na.rm = T)
     }
     return(sum(width, na.rm = T))
+  }
+
+  if(blank_na == TRUE){
+    left_side_data[is.na(left_side_data)] <- " "
   }
 
   left_width <- find_width(left_side_data)
