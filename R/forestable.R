@@ -15,9 +15,8 @@
 #' @param dpi The image resolution in dpi, default 600
 #' @param display Show the table in RStudio viewer? Default TRUE
 #'
-#' @importFrom rlang .data
-#'
 #' @return image
+#' @importFrom rlang .data
 #' @export
 #'
 #' @examples
@@ -138,7 +137,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
   center <- ggplot2::ggplot(data = gdata, ggplot2::aes(y = .data$row_num, x = estimate)) +
     ggplot2::geom_point(size = 3.25) + # the point estimates, with big dots
-    ggplot2::geom_errorbarh(ggplot2::aes(y = row_num,
+    ggplot2::geom_errorbarh(ggplot2::aes(y = .data$row_num,
           xmin = ci_low,
           xmax = ci_high),
           height = .25) + # the CIs, with short ends
