@@ -13,6 +13,7 @@
 #' @param null_line_at numeric, default 0. Change to 1 if using relative measures such as OR, RR.
 #' @param file_path Where to save the image, default "forestable_plot.png" in the current working directory.
 #' @param dpi The image resolution in dpi, default 600
+#' @param display Show the table in RStudio viewer? Default TRUE
 #'
 #' @return image
 #' @export
@@ -25,7 +26,8 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
                     ggplot_is_x_times_right_width = 1.2,
                     null_line_at = 0,
                     file_path = "forestable_plot.png",
-                    dpi = 600){
+                    dpi = 600,
+                    display = TRUE){
 
   if(is.null(theme)){
     theme <- ttheme_minimal(core=list(
@@ -173,9 +175,10 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
          width = total_width/10 + 1, units = "in",
          filename = file_path)
 
-  img <- magick::image_read(file_path)
-  plot(img)
-
+  if(display == TRUE){
+    img <- magick::image_read(file_path)
+    plot(img)
+  }
 }
 
 
