@@ -83,12 +83,13 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
     return(sum(width, na.rm = T))
   }
 
-  if(blank_na == TRUE){
-    left_side_data[is.na(left_side_data)] <- " "
-  }
-
   left_width <- find_width(left_side_data)
   right_width <- find_width(right_side_data)
+
+  if(blank_na == TRUE){
+    left_width <- dplyr::mutate_all(left_width, as.character)
+    left_side_data[is.na(left_side_data)] <- " "
+  }
 
   # insert a blank column so we can put the ggplot object on top
   # and correctly order columns
