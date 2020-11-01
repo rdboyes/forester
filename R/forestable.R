@@ -96,13 +96,15 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
     width <- 0
 
+    names <- colnames(print_data)
+
     for (i in 1:num_of_cols){
-      temp <- systemfonts::shape_string(print_data[, i])
-      temp_col <- systemfonts::shape_string(colnames(print_data)[i])
+      temp <- systemfonts::shape_string(print_data[[names[i]]], family = font_family)
+      temp_col <- systemfonts::shape_string(names[i], family = font_family)
       width[i] <- max(max(temp$metrics$width, na.rm = TRUE),
                       temp_col$metrics$width, na.rm = TRUE)
     }
-    return(sum(width, na.rm = TRUE)/7.2)
+    return(round((sum(width, na.rm = TRUE)/7.2), 0))
   }
 
   # calculate widths for each side with the appropriate function
@@ -126,6 +128,10 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
   ggplot_width <- round(right_width * ggplot_is_x_times_right_width, 0)
   total_width <- left_width + right_width + ggplot_width
+
+  if (!font_family == "mono"){
+    ggplot_width <- round((10/3) * ggplot_width, 0)
+  }
 
   tdata_print <- left_side_data
   tdata_print$` ` <- paste(rep(" ", times = ggplot_width),
@@ -202,9 +208,13 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
     center +
     patchwork::plot_layout(design = layout)
 
+  h_adj <- 1
+
+  if(!font_family == "mono"){h_adj <- 25.6/24.3}
+
   ######### save the plot as a png, then display it with magick ################
 
-  ggplot2::ggsave(dpi = dpi, height = (nrow(gdata) + 3)/3.85,
+  ggplot2::ggsave(dpi = dpi, height = h_adj * (nrow(gdata) + 3)/3.85,
          width = total_width/10 + 1, units = "in",
          filename = file_path)
 

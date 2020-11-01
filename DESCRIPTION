@@ -23,4 +23,5 @@ Imports:
     grid,
     here,
     rlang,
-    systemfonts
+    systemfonts,
+    extrafont

@@ -14,10 +14,11 @@ forestable(
   estimate_precision = 1,
   ggplot_is_x_times_right_width = 1.2,
   null_line_at = 0,
-  file_path = here::here("fig/forestable_plot.png"),
+  file_path = here::here("forestable_plot.png"),
   dpi = 600,
   display = TRUE,
-  blank_na = TRUE
+  blank_na = TRUE,
+  font_family = "mono"
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ forestable(
 \item{display}{Show the table in RStudio viewer? Default TRUE}
 
 \item{blank_na}{Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown}
+
+\item{font_family}{The font to use for the ggplot and table}
 }
 \value{
 image
