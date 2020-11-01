@@ -16,6 +16,7 @@
 #' @param display Show the table in RStudio viewer? Default TRUE
 #' @param blank_na Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown
 #' @param font_family The font to use for the ggplot and table
+#' @param estimate_col_name The name for the generated estimate column. Default "Estimate"
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -32,7 +33,8 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
                     dpi = 600,
                     display = TRUE,
                     blank_na = TRUE,
-                    font_family = "mono"){
+                    font_family = "mono",
+                    estimate_col_name = "Estimate"){
 
   if(is.null(theme)){
     theme <- gridExtra::ttheme_minimal(core=list(
@@ -61,6 +63,8 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
     right_side_data <- data.frame(Estimate = ifelse(tdata$estimate == " ",
                                   " ", paste0(tdata$estimate, " (", tdata$ci_low,
                                       " to ", tdata$ci_high, ")")))
+
+    colnames(right_side_data) <- estimate_col_name
 
   }
 
