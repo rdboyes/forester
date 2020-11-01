@@ -130,7 +130,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
   total_width <- left_width + right_width + ggplot_width
 
   if (!font_family == "mono"){
-    ggplot_width <- round((10/3) * ggplot_width, 0)
+    ggplot_width <- round((8/3) * ggplot_width, 0)
   }
 
   tdata_print <- left_side_data
@@ -210,7 +210,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
   h_adj <- 1
 
-  if(!font_family == "mono"){h_adj <- 25.6/24.3}
+  if(!font_family == "mono"){h_adj <- 25.6/23.25} # ratio of heights fira/mono
 
   ######### save the plot as a png, then display it with magick ################
 

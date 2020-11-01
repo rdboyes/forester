@@ -99,12 +99,42 @@ knitr::include_graphics(here::here("man/figures/fewer_cols.png"))
 
 <img src="D:/Projects/forestable/man/figures/fewer_cols.png" width="100%" />
 
+## Additional Fonts
+
+While Courier has a certain appeal, you might want to give your tables a
+more modern look. However, due to the difficulty of aligning all
+elements when using them, the use of non-monospaced fonts should be
+considered experimental at this stage.
+
+``` r
+library(extrafont)
+#> Registering fonts with R
+
+loadfonts(device = "win")
+windowsFonts("Fira Sans" = windowsFont("Fira Sans"))
+
+forestable(left_side_data = table[,1:3],
+           estimate = table$Estimate,
+           ci_low = table$`CI low`,
+           ci_high = table$`CI high`,
+           display = FALSE,
+           file_path = here::here("man/figures/forestable_plot_fira.png"),
+           font_family = "Fira Sans")
+#> Warning: Removed 8 rows containing missing values (geom_point).
+#> Warning: Removed 8 rows containing missing values (geom_errorbarh).
+
+knitr::include_graphics(here::here("man/figures/forestable_plot_fira.png"))
+```
+
+<img src="D:/Projects/forestable/man/figures/forestable_plot_fira.png" width="100%" />
+
 ## To Do
 
-  - Additional font support
+  - Better additional font support
   - Additional plot types, including ridgeline plots
+  - Add tests of any kind
 
-# References
+## References
 
 1.  Ray, K. K., Wright, R. S., Kallend, D., Koenig, W., Leiter, L. A.,
     Raal, F. J., Bisch, J. A., Richardson, T., Jaros, M., Wijngaard, P.
