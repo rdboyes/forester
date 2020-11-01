@@ -156,8 +156,8 @@ specificity <- forestable(left_side_data = table2[, 8:9],
 
 <p align="center">
 
-<img src="man/figures/forestable_sensitivity.png" width="500" height="300">
-<img src="man/figures/forestable_specificity.png" width="350" height="300">
+<img src="man/figures/forestable_sensitivity.png" width="475" height="275">
+<img src="man/figures/forestable_specificity.png" width="325" height="275">
 
 </p>
 
