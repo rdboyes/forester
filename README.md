@@ -25,11 +25,7 @@ devtools::install_github("rdboyes/forestable")
 Suppose we wish to replicate the following figure published in the NEJM
 \[1\]:
 
-``` r
-knitr::include_graphics(here::here("man/figures/target_figure.jpg"))
-```
-
-<img src="D:/Projects/forestable/man/figures/target_figure.jpg" width="100%" />
+![](man/figures/target_figure.jpg)
 
 Forestable simply requires the left side of the table (in this case,
 three columns with Subgroups and counts for each of two groups) and
@@ -59,11 +55,7 @@ forestable(left_side_data = table[,1:3],
 #> Warning: Removed 8 rows containing missing values (geom_errorbarh).
 ```
 
-``` r
-knitr::include_graphics(here::here("man/figures/forestable_plot.png"))
-```
-
-<img src="D:/Projects/forestable/man/figures/forestable_plot.png" width="100%" />
+![](man/figures/forestable_plot.png)
 
 Forestable handles the alignment of the graph and the table
 automatically, so figures with fewer rows or columns should work by
@@ -78,11 +70,9 @@ forestable(left_side_data = table[1:12,1:3],
            file_path = here::here("man/figures/fewer_rows.png"))
 #> Warning: Removed 3 rows containing missing values (geom_point).
 #> Warning: Removed 3 rows containing missing values (geom_errorbarh).
-
-knitr::include_graphics(here::here("man/figures/fewer_rows.png"))
 ```
 
-<img src="D:/Projects/forestable/man/figures/fewer_rows.png" width="100%" />
+![](man/figures/fewer_rows.png)
 
 ``` r
 forestable(left_side_data = table[,1],
@@ -93,11 +83,9 @@ forestable(left_side_data = table[,1],
            file_path = here::here("man/figures/fewer_cols.png"))
 #> Warning: Removed 8 rows containing missing values (geom_point).
 #> Warning: Removed 8 rows containing missing values (geom_errorbarh).
-
-knitr::include_graphics(here::here("man/figures/fewer_cols.png"))
 ```
 
-<img src="D:/Projects/forestable/man/figures/fewer_cols.png" width="100%" />
+![](man/figures/fewer_cols.png)
 
 ## Additional Fonts
 
@@ -122,11 +110,9 @@ forestable(left_side_data = table[,1:3],
            font_family = "Fira Sans")
 #> Warning: Removed 8 rows containing missing values (geom_point).
 #> Warning: Removed 8 rows containing missing values (geom_errorbarh).
-
-knitr::include_graphics(here::here("man/figures/forestable_plot_fira.png"))
 ```
 
-<img src="D:/Projects/forestable/man/figures/forestable_plot_fira.png" width="100%" />
+![](man/figures/forestable_plot_fira.png)
 
 ## To Do
 
