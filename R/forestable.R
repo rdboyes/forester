@@ -17,6 +17,8 @@
 #' @param blank_na Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown
 #' @param font_family The font to use for the ggplot and table
 #' @param estimate_col_name The name for the generated estimate column. Default "Estimate"
+#' @param stripe_colour Colour to use for the table stripes, default "#eff3f2"
+#' @param x_scale_linear Default TRUE, change to FALSE for log scale
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -34,12 +36,13 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
                     display = TRUE,
                     blank_na = TRUE,
                     font_family = "mono",
-                    estimate_col_name = "Estimate"){
+                    estimate_col_name = "Estimate",
+                    stripe_colour = "#eff3f2"){
 
   if(is.null(theme)){
     theme <- gridExtra::ttheme_minimal(core=list(
       fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
-      bg_params = list(fill=c(rep(c("#eff3f2", "white"), length.out=4)))
+      bg_params = list(fill=c(rep(c(stripe_colour, "white"), length.out=4)))
     ),
     colhead = list(fg_params = list(hjust = 0, x = 0.05,
                                     fontfamily = font_family),
@@ -202,9 +205,15 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
           panel.grid.minor = ggplot2::element_blank(),
           legend.background = ggplot2::element_rect(fill = "transparent"),
           legend.box.background = ggplot2::element_rect(fill = "transparent")) +
-    ggplot2::geom_vline(xintercept = null_line_at, linetype = "dashed") + # null line
-    ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1)) +
-    ggplot2::xlab("")
+    ggplot2::geom_vline(xintercept = null_line_at, linetype = "dashed") # null line
+
+  if(x_scale_linear){
+    center <- center + ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1)) +
+      ggplot2::xlab("")
+  }else{
+    center <- center + ggplot2::scale_x_log10(labels = scales::number_format(accuracy = 0.1)) +
+      ggplot2::xlab("")
+  }
 
   ######### using patchwork, overlay the ggplot on the table ###################
 
@@ -223,8 +232,10 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
          filename = file_path)
 
   if(display == TRUE){
-    img <- magick::image_read(file_path)
-    plot(img)
+    magick::image_resize(magick::image_read(file_path),
+                         paste0(grDevices::dev.size("px")[1],
+                                "x",
+                                grDevices::dev.size("px")[2]))
   }
 }
 
