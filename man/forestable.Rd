@@ -18,7 +18,9 @@ forestable(
   dpi = 600,
   display = TRUE,
   blank_na = TRUE,
-  font_family = "mono"
+  font_family = "mono",
+  estimate_col_name = "Estimate",
+  stripe_colour = "#eff3f2"
 )
 }
 \arguments{
@@ -49,6 +51,12 @@ forestable(
 \item{blank_na}{Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown}
 
 \item{font_family}{The font to use for the ggplot and table}
+
+\item{estimate_col_name}{The name for the generated estimate column. Default "Estimate"}
+
+\item{stripe_colour}{Colour to use for the table stripes, default "#eff3f2"}
+
+\item{x_scale_linear}{Default TRUE, change to FALSE for log scale}
 }
 \value{
 image
