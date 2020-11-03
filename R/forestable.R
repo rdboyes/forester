@@ -19,6 +19,7 @@
 #' @param estimate_col_name The name for the generated estimate column. Default "Estimate"
 #' @param stripe_colour Colour to use for the table stripes, default "#eff3f2"
 #' @param x_scale_linear Default TRUE, change to FALSE for log scale
+#' @param xlim Manually specify limits for the x axis as a vector length 2, i.e. c(low, high)
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -38,7 +39,8 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
                     font_family = "mono",
                     estimate_col_name = "Estimate",
                     stripe_colour = "#eff3f2",
-                    x_scale_linear = TRUE){
+                    x_scale_linear = TRUE,
+                    xlim = NULL){
 
   if(is.null(theme)){
     theme <- gridExtra::ttheme_minimal(core=list(
@@ -208,12 +210,18 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
           legend.box.background = ggplot2::element_rect(fill = "transparent")) +
     ggplot2::geom_vline(xintercept = null_line_at, linetype = "dashed") # null line
 
+  ######## Optional customizations here ########
+
   if(x_scale_linear){
     center <- center + ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1)) +
       ggplot2::xlab("")
   }else{
     center <- center + ggplot2::scale_x_log10(labels = scales::number_format(accuracy = 0.1)) +
       ggplot2::xlab("")
+  }
+
+  if(!is.null(xlim)){
+    center <- center + ggplot2::xlim(xlim)
   }
 
   ######### using patchwork, overlay the ggplot on the table ###################
