@@ -1,7 +1,7 @@
 Package: forestable
 Type: Package
-Title: Create a Forest Plot Column in Any Table
-Version: 0.1.0
+Title: A simple R interface for publication-ready forest plots using patchwork.
+Version: 0.2.0
 Author: Randy Boyes
 Maintainer: Randy Boyes <randy.boyes@gmail.com>
 Description: This package uses patchwork to overlay forest plots created in 

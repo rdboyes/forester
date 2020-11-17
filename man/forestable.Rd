@@ -20,7 +20,9 @@ forestable(
   blank_na = TRUE,
   font_family = "mono",
   estimate_col_name = "Estimate",
-  stripe_colour = "#eff3f2"
+  stripe_colour = "#eff3f2",
+  x_scale_linear = TRUE,
+  xlim = NULL
 )
 }
 \arguments{
@@ -57,6 +59,8 @@ forestable(
 \item{stripe_colour}{Colour to use for the table stripes, default "#eff3f2"}
 
 \item{x_scale_linear}{Default TRUE, change to FALSE for log scale}
+
+\item{xlim}{Manually specify limits for the x axis as a vector length 2, i.e. c(low, high)}
 }
 \value{
 image

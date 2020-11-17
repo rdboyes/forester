@@ -127,7 +127,6 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
     right_width <- find_width(right_side_data)
   }
 
-
   if(blank_na == TRUE){
     left_side_data <- dplyr::mutate_all(left_side_data, as.character)
     left_side_data[is.na(left_side_data)] <- " "
@@ -136,7 +135,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
   # insert a blank column so we can put the ggplot object on top
   # and correctly order columns
 
-  ggplot_width <- round(right_width * ggplot_is_x_times_right_width, 0)
+  ggplot_width <- right_width * ggplot_is_x_times_right_width
   total_width <- left_width + right_width + ggplot_width
 
   if (!font_family == "mono"){
@@ -147,43 +146,6 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
   tdata_print$` ` <- paste(rep(" ", times = ggplot_width),
                            collapse = '')
   tdata_print <- cbind(tdata_print, right_side_data)
-
-  # function to calculate greatest common factor
-
-  gcf <- function(a, b){
-    t <- 0
-    while (b != 0){
-      t <- b
-      b <- a %% b
-      a <- t
-    }
-    return(a)
-  }
-
-  # make one unit in patchwork equal in width to the greatest common factor of
-  # the three widths
-
-  one_patchwork_unit <- gcf(gcf(left_width, right_width), ggplot_width)
-
-  left_pw <- left_width/one_patchwork_unit
-  right_pw <- right_width/one_patchwork_unit
-  total_pw <- total_width/one_patchwork_unit
-
-  # calculated patchwork layout
-
-  layout <- c(patchwork::area(t = 1,
-                b = nrow(gdata),
-                l = 1,
-                r = total_pw),
-              patchwork::area(t = 1,
-                b = (nrow(gdata) + 1),
-                l = left_pw + 1,
-                r = total_pw - right_pw + 1))
-
-  gdata$row_num <- (nrow(gdata) - 1):0
-
-  y_low <- -.54 - .1381 * log(nrow(gdata))
-  y_high <- nrow(gdata) + -.3
 
   ########## the main figure - this will be overlaid on the table ##############
 
@@ -227,8 +189,12 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
   ######### using patchwork, overlay the ggplot on the table ###################
 
   final <- patchwork::wrap_elements(gridExtra::tableGrob(tdata_print, theme = theme, rows = NULL)) +
-    center +
-    patchwork::plot_layout(design = layout)
+    patchwork::inset_element(center,
+                             align_to = "full",
+                             left = (left_width/total_width),
+                             right = (ggplot_width + left_width/total_width),
+                             top = 1,
+                             bottom = 0)
 
   h_adj <- 1
 
