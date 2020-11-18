@@ -1,6 +1,6 @@
 Package: forestable
 Type: Package
-Title: A simple R interface for publication-ready forest plots using patchwork.
+Title: A simple R interface for publication-ready forest plots using patchwork
 Version: 0.2.0
 Author: Randy Boyes
 Maintainer: Randy Boyes <randy.boyes@gmail.com>

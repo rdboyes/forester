@@ -51,6 +51,8 @@ forestable(left_side_data = table[,1:3],
            ci_high = table$`CI high`,
            display = FALSE,
            file_path = here::here("man/figures/forestable_plot.png"))
+#> Scale for 'x' is already present. Adding another scale for 'x', which will
+#> replace the existing scale.
 #> Warning: Removed 8 rows containing missing values (geom_point).
 #> Warning: Removed 8 rows containing missing values (geom_errorbarh).
 ```
@@ -68,6 +70,8 @@ forestable(left_side_data = table[1:12,1:3],
            ci_high = table$`CI high`[1:12],
            display = FALSE,
            file_path = here::here("man/figures/fewer_rows.png"))
+#> Scale for 'x' is already present. Adding another scale for 'x', which will
+#> replace the existing scale.
 #> Warning: Removed 3 rows containing missing values (geom_point).
 #> Warning: Removed 3 rows containing missing values (geom_errorbarh).
 ```
@@ -81,6 +85,8 @@ forestable(left_side_data = table[,1],
            ci_high = table$`CI high`,
            display = FALSE,
            file_path = here::here("man/figures/fewer_cols.png"))
+#> Scale for 'x' is already present. Adding another scale for 'x', which will
+#> replace the existing scale.
 #> Warning: Removed 8 rows containing missing values (geom_point).
 #> Warning: Removed 8 rows containing missing values (geom_errorbarh).
 ```
@@ -108,11 +114,48 @@ forestable(left_side_data = table[,1:3],
            display = FALSE,
            file_path = here::here("man/figures/forestable_plot_fira.png"),
            font_family = "Fira Sans")
+#> Scale for 'x' is already present. Adding another scale for 'x', which will
+#> replace the existing scale.
 #> Warning: Removed 8 rows containing missing values (geom_point).
 #> Warning: Removed 8 rows containing missing values (geom_errorbarh).
 ```
 
-![](man/figures/forestable_plot_fira.png)
+![](man/figures/forestable_plot_fira.png) Adjusting table properties
+with different fonts will still work:
+
+``` r
+forestable(left_side_data = table[1:12,1:3],
+           estimate = table$Estimate[1:12],
+           ci_low = table$`CI low`[1:12],
+           ci_high = table$`CI high`[1:12],
+           display = FALSE,
+           font_family = "Fira Sans",
+           file_path = here::here("man/figures/fewer_rows_fira.png"))
+#> Scale for 'x' is already present. Adding another scale for 'x', which will
+#> replace the existing scale.
+#> Warning: Removed 3 rows containing missing values (geom_point).
+#> Warning: Removed 3 rows containing missing values (geom_errorbarh).
+```
+
+![](man/figures/fewer_rows_fira.png)
+
+``` r
+windowsFonts("Times New Roman" = windowsFont("Times New Roman"))
+
+forestable(left_side_data = table[1:12,1:3],
+           estimate = table$Estimate[1:12],
+           ci_low = table$`CI low`[1:12],
+           ci_high = table$`CI high`[1:12],
+           display = FALSE,
+           font_family = "Times New Roman",
+           file_path = here::here("man/figures/fewer_rows_times.png"))
+#> Scale for 'x' is already present. Adding another scale for 'x', which will
+#> replace the existing scale.
+#> Warning: Removed 3 rows containing missing values (geom_point).
+#> Warning: Removed 3 rows containing missing values (geom_errorbarh).
+```
+
+![](man/figures/fewer_rows_times.png)
 
 ## Multiple forest plots
 
@@ -138,6 +181,8 @@ sensitivity <- forestable(left_side_data = table2[, 1:4],
                           file_path = here::here("man/figures/forestable_sensitivity.png"),
                           null_line_at = 100,
                           estimate_col_name = "Sensitivity")
+#> Scale for 'x' is already present. Adding another scale for 'x', which will
+#> replace the existing scale.
 #> Warning: Removed 2 rows containing missing values (geom_point).
 #> Warning: Removed 2 rows containing missing values (geom_errorbarh).
 
@@ -149,6 +194,8 @@ specificity <- forestable(left_side_data = table2[, 8:9],
                           file_path = here::here("man/figures/forestable_specificity.png"),
                           null_line_at = 100,
                           estimate_col_name = "Specificity")
+#> Scale for 'x' is already present. Adding another scale for 'x', which will
+#> replace the existing scale.
 #> Warning: Removed 2 rows containing missing values (geom_point).
 
 #> Warning: Removed 2 rows containing missing values (geom_errorbarh).

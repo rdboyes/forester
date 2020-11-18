@@ -9,7 +9,7 @@
 #' @param right_side_data A data frame (optional) containing the information to be displayed on the right side of the table. If not supplied, an Estimate column is generated automatically.
 #' @param theme A theme object for the table (optional)
 #' @param estimate_precision Integer. The number of decimal places on the estimate (default 1)
-#' @param ggplot_is_x_times_right_width The width of forest plot relative to the right side of the table (default 1.2)
+#' @param ggplot_width The width of forest plot in characters (default 26)
 #' @param null_line_at numeric, default 0. Change to 1 if using relative measures such as OR, RR.
 #' @param file_path Where to save the image, default "forestable_plot.png" in the current working directory.
 #' @param dpi The image resolution in dpi, default 600
@@ -30,7 +30,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
                     right_side_data = NULL,
                     theme = NULL,
                     estimate_precision = 1,
-                    ggplot_is_x_times_right_width = 1.2,
+                    ggplot_width = 30,
                     null_line_at = 0,
                     file_path = here::here("forestable_plot.png"),
                     dpi = 600,
@@ -114,7 +114,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
       width[i] <- max(max(temp$metrics$width, na.rm = TRUE),
                       temp_col$metrics$width, na.rm = TRUE)
     }
-    return(round((sum(width, na.rm = TRUE)/7.2), 0))
+    return(sum(width, na.rm = TRUE)/7.2)
   }
 
   # calculate widths for each side with the appropriate function
@@ -135,17 +135,43 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
   # insert a blank column so we can put the ggplot object on top
   # and correctly order columns
 
-  ggplot_width <- right_width * ggplot_is_x_times_right_width
   total_width <- left_width + right_width + ggplot_width
 
-  if (!font_family == "mono"){
-    ggplot_width <- round((8/3) * ggplot_width, 0)
-  }
-
   tdata_print <- left_side_data
-  tdata_print$` ` <- paste(rep(" ", times = ggplot_width),
+  tdata_print$` ` <- paste(rep(" ", times = round(ggplot_width, 0)),
                            collapse = '')
   tdata_print <- cbind(tdata_print, right_side_data)
+
+  mono_column <- function(table, col){
+    col_indexes <- function(table, col, name="core-fg"){
+      l <- table$layout
+      which(l$l==col & l$name==name)
+    }
+
+    ind <- col_indexes(table, col, "core-fg")
+
+    for(i in ind){
+      table$grobs[i][[1]][["gp"]] <- grid::gpar(fontfamily = "mono")
+    }
+    return(table)
+  }
+
+  ######## calculations for the top and bottom of the plot
+
+  gdata$row_num <- (nrow(gdata) - 1):0
+
+  text_height <- systemfonts::shape_string("Hello", family = font_family)$metrics$height[1] + 11.16
+
+  baseline_height <- 23.25 + 11.16
+
+  h_adj <- ifelse(font_family == "mono",
+                  1,
+                  text_height/baseline_height)
+
+  height <- h_adj * nrow(gdata)
+
+  y_low <- -.54 - .1381 * log(nrow(gdata)) + (h_adj - 1) * 6
+  y_high <- 1.017 * nrow(gdata) - 0.35 - (h_adj - 1) * 6
 
   ########## the main figure - this will be overlaid on the table ##############
 
@@ -154,7 +180,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
     ggplot2::geom_errorbarh(ggplot2::aes(y = .data$row_num,
           xmin = ci_low,
           xmax = ci_high),
-          height = .25) + # the CIs, with short ends
+          height = .25) +
     ggplot2::theme_classic() + # base theme
     ggplot2::scale_y_continuous(expand = c(0,0), #remove padding
           limits = c(y_low, y_high)) + # position dots
@@ -170,7 +196,9 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
           panel.grid.minor = ggplot2::element_blank(),
           legend.background = ggplot2::element_rect(fill = "transparent"),
           legend.box.background = ggplot2::element_rect(fill = "transparent")) +
-    ggplot2::geom_vline(xintercept = null_line_at, linetype = "dashed") # null line
+    ggplot2::geom_vline(xintercept = null_line_at, linetype = "dashed") +
+    ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1)) +
+      ggplot2::xlab("")
 
   ######## Optional customizations here ########
 
@@ -188,21 +216,29 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
   ######### using patchwork, overlay the ggplot on the table ###################
 
-  final <- patchwork::wrap_elements(gridExtra::tableGrob(tdata_print, theme = theme, rows = NULL)) +
-    patchwork::inset_element(center,
+  canvas <- ggplot2::ggplot() + ggplot2::theme_void()
+
+  table_final <- mono_column(gridExtra::tableGrob(tdata_print, theme = theme, rows = NULL), ncol(left_side_data) + 1)
+
+  table_final$widths[ncol(left_side_data) + 1] <- grid::unit(ggplot_width/10, "in")
+
+  final <- canvas + patchwork::inset_element(patchwork::wrap_elements(table_final),
+                             align_to = "full",
+                             left = 0,
+                             right = 1,
+                             top = 1,
+                             bottom = 0.4684 -.1155 * log(nrow(gdata))) +
+                    patchwork::inset_element(center,
                              align_to = "full",
                              left = (left_width/total_width),
-                             right = (ggplot_width + left_width/total_width),
+                             right = ((ggplot_width + left_width)/total_width),
                              top = 1,
                              bottom = 0)
 
-  h_adj <- 1
-
-  if(!font_family == "mono"){h_adj <- 25.6/23.25} # ratio of heights fira/mono
-
   ######### save the plot as a png, then display it with magick ################
 
-  ggplot2::ggsave(dpi = dpi, height = h_adj * (nrow(gdata) + 3)/3.85,
+  ggplot2::ggsave(dpi = dpi,
+         height = h_adj * (nrow(gdata) + 3)/3.8 + h_adj - 1,
          width = total_width/10 + 1, units = "in",
          filename = file_path)
 

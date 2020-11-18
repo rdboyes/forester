@@ -12,7 +12,7 @@ forestable(
   right_side_data = NULL,
   theme = NULL,
   estimate_precision = 1,
-  ggplot_is_x_times_right_width = 1.2,
+  ggplot_width = 30,
   null_line_at = 0,
   file_path = here::here("forestable_plot.png"),
   dpi = 600,
@@ -40,7 +40,7 @@ forestable(
 
 \item{estimate_precision}{Integer. The number of decimal places on the estimate (default 1)}
 
-\item{ggplot_is_x_times_right_width}{The width of forest plot relative to the right side of the table (default 1.2)}
+\item{ggplot_width}{The width of forest plot in characters (default 26)}
 
 \item{null_line_at}{numeric, default 0. Change to 1 if using relative measures such as OR, RR.}
 
