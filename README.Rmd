@@ -55,6 +55,7 @@ forestable(left_side_data = table[,1:3],
            ci_low = table$`CI low`,
            ci_high = table$`CI high`,
            display = FALSE,
+           xlim = c(-100, 25),
            file_path = here::here("man/figures/forestable_plot.png"))
 ```
 

@@ -20,6 +20,7 @@
 #' @param stripe_colour Colour to use for the table stripes, default "#eff3f2"
 #' @param x_scale_linear Default TRUE, change to FALSE for log scale
 #' @param xlim Manually specify limits for the x axis as a vector length 2, i.e. c(low, high)
+#' @param nudge_y Numeric. Allows small changes to the vertical alignment of the forest plot points. 1 unit is approximately the height of 1 row.
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -45,7 +46,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
   if(is.null(theme)){
     theme <- gridExtra::ttheme_minimal(core=list(
       fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
-      bg_params = list(fill=c(rep(c(stripe_colour, "white"), length.out=4)))
+      bg_params = list(fill=c(rep(c(stripe_colour, "white"), length.out=nrow(left_side_data)), "white", "white", "white"))
     ),
     colhead = list(fg_params = list(hjust = 0, x = 0.05,
                                     fontfamily = font_family),
@@ -127,11 +128,6 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
     right_width <- find_width(right_side_data)
   }
 
-  if(blank_na == TRUE){
-    left_side_data <- dplyr::mutate_all(left_side_data, as.character)
-    left_side_data[is.na(left_side_data)] <- " "
-  }
-
   # insert a blank column so we can put the ggplot object on top
   # and correctly order columns
 
@@ -141,6 +137,15 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
   tdata_print$` ` <- paste(rep(" ", times = round(ggplot_width, 0)),
                            collapse = '')
   tdata_print <- cbind(tdata_print, right_side_data)
+
+  tdata_print <- tibble::add_row(tdata_print)
+  tdata_print <- tibble::add_row(tdata_print)
+  tdata_print <- tibble::add_row(tdata_print)
+
+  if(blank_na == TRUE){
+    tdata_print <- dplyr::mutate_all(tdata_print, as.character)
+    tdata_print[is.na(tdata_print)] <- " "
+  }
 
   mono_column <- function(table, col){
     col_indexes <- function(table, col, name="core-fg"){
@@ -160,18 +165,25 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
   gdata$row_num <- (nrow(gdata) - 1):0
 
-  text_height <- systemfonts::shape_string("Hello", family = font_family)$metrics$height[1] + 11.16
+  # text_height <- systemfonts::shape_string("0123456789", family = font_family)$metrics$height[1]
+  #
+  # baseline_height <- systemfonts::shape_string("0123456789", family = "mono")$metrics$height[1]
+  #
+  # h_adj <- text_height - baseline_height
 
-  baseline_height <- 23.25 + 11.16
+  if(is.null(nudge_y)){
+    h_adj <- dplyr::case_when(
+      font_family == "mono" ~ 0,
+      font_family == "Fira Sans" ~ .3,
+      font_family == "Times New Roman" ~ .3,
+      TRUE ~ 0.3
+    )
+  }else{
+    h_adj <- 0.3 + nudge_y
+  }
 
-  h_adj <- ifelse(font_family == "mono",
-                  1,
-                  text_height/baseline_height)
-
-  height <- h_adj * nrow(gdata)
-
-  y_low <- -.54 - .1381 * log(nrow(gdata)) + (h_adj - 1) * 6
-  y_high <- 1.017 * nrow(gdata) - 0.35 - (h_adj - 1) * 6
+  y_low <- -.79 - .1381 * log(nrow(gdata)) + h_adj
+  y_high <- 1.017 * nrow(gdata) - 0.6
 
   ########## the main figure - this will be overlaid on the table ##############
 
@@ -216,18 +228,13 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
   ######### using patchwork, overlay the ggplot on the table ###################
 
-  canvas <- ggplot2::ggplot() + ggplot2::theme_void()
-
   table_final <- mono_column(gridExtra::tableGrob(tdata_print, theme = theme, rows = NULL), ncol(left_side_data) + 1)
 
   table_final$widths[ncol(left_side_data) + 1] <- grid::unit(ggplot_width/10, "in")
 
-  final <- canvas + patchwork::inset_element(patchwork::wrap_elements(table_final),
-                             align_to = "full",
-                             left = 0,
-                             right = 1,
-                             top = 1,
-                             bottom = 0.4684 -.1155 * log(nrow(gdata))) +
+  table_final$heights <- grid::unit(rep(0.255, times = length(table_final$heights)), "in")
+
+  final <- patchwork::wrap_elements(table_final) +
                     patchwork::inset_element(center,
                              align_to = "full",
                              left = (left_width/total_width),
@@ -238,7 +245,7 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
   ######### save the plot as a png, then display it with magick ################
 
   ggplot2::ggsave(dpi = dpi,
-         height = h_adj * (nrow(gdata) + 3)/3.8 + h_adj - 1,
+         height = (nrow(gdata) + 3)/3.8,
          width = total_width/10 + 1, units = "in",
          filename = file_path)
 

@@ -50,7 +50,10 @@ forestable(left_side_data = table[,1:3],
            ci_low = table$`CI low`,
            ci_high = table$`CI high`,
            display = FALSE,
+           xlim = c(-100, 25),
            file_path = here::here("man/figures/forestable_plot.png"))
+#> Scale for 'x' is already present. Adding another scale for 'x', which will
+#> replace the existing scale.
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
 #> Warning: Removed 8 rows containing missing values (geom_point).
