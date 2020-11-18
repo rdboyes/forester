@@ -160,56 +160,29 @@ forestable(left_side_data = table[1:12,1:3],
 
 ![](man/figures/fewer_rows_times.png)
 
-## Multiple forest plots
-
-Some datasets may warrant more than one forest plot side by side in a
-single table. The best way to accomplish this currently is to create two
-subtables and display them side by side. For example, the following data
-was taken from a study estimating the sensitivity and specificity of
-serological tests for COVID-19 \[2\]:
+## Adding Arrows (Experimental)
 
 ``` r
-table2 <- readxl::read_excel(here::here("inst/extdata/example_figure_data_2.xlsx"))
-    
-# indent the subgroup if there is a number in the placebo column
-table2$`Source of heterogeneity` <- ifelse(is.na(table2$TP), 
-                         table2$`Source of heterogeneity`,
-                         paste0("   ", table2$`Source of heterogeneity`))
-                         
-sensitivity <- forestable(left_side_data = table2[, 1:4],
-                          estimate = table2$est1, 
-                          ci_low = table2$ci_low1,
-                          ci_high = table2$ci_high1,
-                          display = FALSE,
-                          file_path = here::here("man/figures/forestable_sensitivity.png"),
-                          null_line_at = 100,
-                          estimate_col_name = "Sensitivity")
+forestable(left_side_data = table[,1:3],
+           estimate = table$Estimate,
+           ci_low = table$`CI low`,
+           ci_high = table$`CI high`,
+           display = FALSE,
+           file_path = here::here("man/figures/forestable_plot_arrows.png"),
+           font_family = "Fira Sans",
+           xlim = c(-100, 25),
+           xbreaks = c(-100, -75, -50, -25, 0, 25),
+           arrows = TRUE, 
+           arrow_labels = c("Inclisiran Better", "Placebo Better"))
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
-#> Warning: Removed 2 rows containing missing values (geom_point).
-#> Warning: Removed 2 rows containing missing values (geom_errorbarh).
-
-specificity <- forestable(left_side_data = table2[, 8:9],
-                          estimate = table2$est2, 
-                          ci_low = table2$ci_low2,
-                          ci_high = table2$ci_high2,
-                          display = FALSE,
-                          file_path = here::here("man/figures/forestable_specificity.png"),
-                          null_line_at = 100,
-                          estimate_col_name = "Specificity")
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
-#> Warning: Removed 2 rows containing missing values (geom_point).
-
-#> Warning: Removed 2 rows containing missing values (geom_errorbarh).
+#> Warning: Removed 8 rows containing missing values (geom_point).
+#> Warning: Removed 8 rows containing missing values (geom_errorbarh).
 ```
 
-<p align="center">
-
-<img src="man/figures/forestable_sensitivity.png" width="475" height="275">
-<img src="man/figures/forestable_specificity.png" width="325" height="275">
-
-</p>
+![](man/figures/forestable_plot_arrows.png)
 
 ## To Do
 
