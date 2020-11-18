@@ -24,4 +24,5 @@ Imports:
     here,
     rlang,
     systemfonts,
-    extrafont
+    extrafont,
+    tibble

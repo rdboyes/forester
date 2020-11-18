@@ -26,12 +26,12 @@
 #'
 #' @return image
 #' @importFrom rlang .data
+#' @importFrom graphics text
 #' @export
 #'
 #' @examples
 forestable <- function(left_side_data, estimate, ci_low, ci_high,
                     right_side_data = NULL,
-                    theme = NULL,
                     estimate_precision = 1,
                     ggplot_width = 30,
                     null_line_at = 0,
@@ -252,9 +252,9 @@ forestable <- function(left_side_data, estimate, ci_low, ci_high,
 
     # create the arrow/label ggplot object
     arrows_plot <- ggplot2::ggplot() +
-      ggplot2::geom_segment(data = arrow_df, ggplot2::aes(x = xstart, xend = xend, y = y, yend = y),
+      ggplot2::geom_segment(data = arrow_df, ggplot2::aes(x = .data$xstart, xend = .data$xend, y = .data$y, yend = .data$y),
                  arrow = ggplot2::arrow(angle = 15, type = "closed", length = grid::unit(0.1, "in"))) +
-      ggplot2::geom_text(data = xlab_df, ggplot2::aes(x = x, y = y, label = text, hjust = hjust),
+      ggplot2::geom_text(data = xlab_df, ggplot2::aes(x = .data$x, y = .data$y, label = .data$text, hjust = .data$hjust),
               family = font_family, size = 3) +
       ggplot2::scale_y_continuous(expand = c(0,0), limits = c(-0.5, 1.75)) +
       ggplot2::scale_x_continuous(expand = c(0,0), limits = xlim) +

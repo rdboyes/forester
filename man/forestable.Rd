@@ -10,7 +10,6 @@ forestable(
   ci_low,
   ci_high,
   right_side_data = NULL,
-  theme = NULL,
   estimate_precision = 1,
   ggplot_width = 30,
   null_line_at = 0,
@@ -22,45 +21,55 @@ forestable(
   estimate_col_name = "Estimate",
   stripe_colour = "#eff3f2",
   x_scale_linear = TRUE,
-  xlim = NULL
+  xlim = NULL,
+  xbreaks = NULL,
+  nudge_y = NULL,
+  arrows = FALSE,
+  arrow_labels = c("Lower", "Higher")
 )
 }
 \arguments{
-\item{left_side_data}{A data frame with the information to be displayed to the left of the forest plot.}
+\item{left_side_data}{Data frame (required). The information to be displayed to the left of the forest plot.}
 
-\item{estimate}{A vector containing the point estimates to be displayed in the forest plot.}
+\item{estimate}{Vector. The point estimates to be displayed in the forest plot.}
 
-\item{ci_low}{A vector containing the lower confidence bounds}
+\item{ci_low}{Vector. The lower confidence bounds.}
 
-\item{ci_high}{A vector containing the upper confidence bounds}
+\item{ci_high}{Vector. The upper confidence bounds.}
 
-\item{right_side_data}{A data frame (optional) containing the information to be displayed on the right side of the table. If not supplied, an Estimate column is generated automatically.}
-
-\item{theme}{A theme object for the table (optional)}
+\item{right_side_data}{Data frame (optional). Information to be displayed on the right side of the table. If not supplied, an Estimate column is generated automatically.}
 
 \item{estimate_precision}{Integer. The number of decimal places on the estimate (default 1)}
 
-\item{ggplot_width}{The width of forest plot in characters (default 26)}
+\item{ggplot_width}{Integer. The width of forest plot in characters (default 30)}
 
-\item{null_line_at}{numeric, default 0. Change to 1 if using relative measures such as OR, RR.}
+\item{null_line_at}{Numeric. Default 0. Change to 1 if using relative measures such as OR, RR.}
 
-\item{file_path}{Where to save the image, default "forestable_plot.png" in the current working directory.}
+\item{file_path}{String. Where to save the image, default "forestable_plot.png" in the current working directory.}
 
-\item{dpi}{The image resolution in dpi, default 600}
+\item{dpi}{Numeric. The image resolution in dpi, default 600}
 
-\item{display}{Show the table in RStudio viewer? Default TRUE}
+\item{display}{Logical. Show the table in RStudio viewer? Default TRUE}
 
-\item{blank_na}{Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown}
+\item{blank_na}{Logical. Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown}
 
-\item{font_family}{The font to use for the ggplot and table}
+\item{font_family}{String. The font to use for the ggplot and table. Default "mono".}
 
-\item{estimate_col_name}{The name for the generated estimate column. Default "Estimate"}
+\item{estimate_col_name}{String. The name for the generated estimate column. Default "Estimate"}
 
-\item{stripe_colour}{Colour to use for the table stripes, default "#eff3f2"}
+\item{stripe_colour}{Hex String. Colour to use for the table stripes, default "#eff3f2"}
 
-\item{x_scale_linear}{Default TRUE, change to FALSE for log scale}
+\item{x_scale_linear}{Logical. Default TRUE, change to FALSE for log scale}
 
-\item{xlim}{Manually specify limits for the x axis as a vector length 2, i.e. c(low, high)}
+\item{xlim}{Vector. Manually specify limits for the x axis as a vector length 2, i.e. c(low, high)}
+
+\item{xbreaks}{Vector. X axis breaks to label. Specify limits in xlim if using this option.}
+
+\item{nudge_y}{Numeric. Allows small changes to the vertical alignment of the forest plot points. 1 unit is approximately the height of 1 row.}
+
+\item{arrows}{Logical. Should there be arrows displayed below the ggplot? Default FALSE. Specify xlim if using arrows.}
+
+\item{arrow_labels}{String Vector, length 2. Labels for the arrows. Set arrows to TRUE or this will have no effect.}
 }
 \value{
 image
