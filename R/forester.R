@@ -23,6 +23,8 @@
 #' @param nudge_y Numeric. Allows small changes to the vertical alignment of the forest plot points. 1 unit is approximately the height of 1 row.
 #' @param arrows Logical. Should there be arrows displayed below the ggplot? Default FALSE. Specify xlim if using arrows.
 #' @param arrow_labels String Vector, length 2. Labels for the arrows. Set arrows to TRUE or this will have no effect.
+#' @param add_plot A ggplot object to add to the right side of the table. To align correctly with rows, 1 unit is the height of a row and y = 0 for the center of the bottom row.
+#' @param add_plot_width Numeric (0 - 1). Width to display add_plot, relative to the width of the table. Default 0.3.
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -30,12 +32,15 @@
 #' @export
 #'
 #' @examples
-forester <- function(left_side_data, estimate, ci_low, ci_high,
+forester <- function(left_side_data,
+                    estimate,
+                    ci_low,
+                    ci_high,
                     right_side_data = NULL,
                     estimate_precision = 1,
                     ggplot_width = 30,
                     null_line_at = 0,
-                    file_path = here::here("forestable_plot.png"),
+                    file_path = here::here("forester_plot.png"),
                     dpi = 600,
                     display = TRUE,
                     blank_na = TRUE,
@@ -47,7 +52,9 @@ forester <- function(left_side_data, estimate, ci_low, ci_high,
                     xbreaks = NULL,
                     nudge_y = NULL,
                     arrows = FALSE,
-                    arrow_labels = c("Lower", "Higher")){
+                    arrow_labels = c("Lower", "Higher"),
+                    add_plot = NULL,
+                    add_plot_width = 0.3){
 
   theme <- gridExtra::ttheme_minimal(core=list(
     fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
@@ -180,7 +187,7 @@ forester <- function(left_side_data, estimate, ci_low, ci_high,
     h_adj <- 0.3 + nudge_y
   }
 
-  y_low <- -.9 - .1381 * log(nrow(gdata)) + h_adj
+  y_low <- -.5 - .1381 * log(nrow(gdata)) + h_adj
   y_high <- 1.017 * nrow(gdata) - 0.6
 
   ########## the main figure - this will be overlaid on the table ##############
@@ -290,7 +297,7 @@ forester <- function(left_side_data, estimate, ci_low, ci_high,
                              left = (left_width/total_width),
                              right = ((ggplot_width + left_width)/total_width),
                              top = 1,
-                             bottom = 0)
+                             bottom = 0.35/nrow(gdata))
 
   if(arrows == TRUE){
     final <- final + patchwork::inset_element(arrows_plot,
@@ -301,11 +308,35 @@ forester <- function(left_side_data, estimate, ci_low, ci_high,
                                               bottom = 0)
   }
 
+  if(!is.null(add_plot)){
+    canvas <- ggplot(tibble(x = 0, y = 0), aes(x = x, y = y)) + geom_point() + theme_void()
+
+    extra_plot <- canvas +
+      patchwork::inset_element(final,
+                               align_to = "full",
+                               left = 0,
+                               right = 1 - add_plot_width,
+                               top = 1,
+                               bottom = 0) +
+      patchwork::inset_element(add_plot,
+                               align_to = "full",
+                               left = add_plot_width,
+                               right = 1,
+                               top = 1,
+                               bottom = 0.35/nrow(gdata))
+
+    final <- extra_plot
+  }
+
   ######### save the plot as a png, then display it with magick ################
+
+  png_width <- total_width/10 + 1
+
+  if(!is.null(add_plot)){png_width <- png_width/(1 - add_plot_width)}
 
   ggplot2::ggsave(dpi = dpi,
          height = (nrow(gdata) + 3)/3.8,
-         width = total_width/10 + 1, units = "in",
+         width = png_width, units = "in",
          filename = file_path)
 
   if(display == TRUE){
