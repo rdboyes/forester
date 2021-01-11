@@ -183,6 +183,14 @@ forester(left_side_data = table[,1:3],
 
 ![](man/figures/forester_plot_arrows.png)
 
+## Adding additional ggplot objects (Experimental)
+
+Custom ggplot objects can be passed to the `forester` function using the
+parameter `add_plot`. To align the plot with the rows of the table, the
+vertical center of the bottom row is at y = 0, and each row is one unit
+tall on the y axis. `add_plot_width` can be set to customize the width
+of the plot (units are relative to the width of the table).
+
 ## To Do
 
 -   Better additional font support
