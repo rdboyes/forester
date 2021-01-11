@@ -1,4 +1,4 @@
-Package: forestable
+Package: forester
 Type: Package
 Title: A simple R interface for publication-ready forest plots using patchwork
 Version: 0.2.0

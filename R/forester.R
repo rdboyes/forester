@@ -30,7 +30,7 @@
 #' @export
 #'
 #' @examples
-forestable <- function(left_side_data, estimate, ci_low, ci_high,
+forester <- function(left_side_data, estimate, ci_low, ci_high,
                     right_side_data = NULL,
                     estimate_precision = 1,
                     ggplot_width = 30,

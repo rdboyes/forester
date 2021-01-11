@@ -1,13 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# forestable
+# forester
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
-The goal of forestable is to make it easy for you to create a
+The goal of forester is to make it easy for you to create a
 publication-quality forest plot with as much or as little information
 displayed on either side as you require.
 
@@ -17,7 +16,7 @@ This package is currently early in development, and must be installed
 from this github repo.
 
 ``` r
-devtools::install_github("rdboyes/forestable")
+devtools::install_github("rdboyes/forester")
 ```
 
 ## Example
@@ -27,12 +26,12 @@ Suppose we wish to replicate the following figure published in the NEJM
 
 ![](man/figures/target_figure.jpg)
 
-Forestable simply requires the left side of the table (in this case,
-three columns with Subgroups and counts for each of two groups) and
-vectors which contain the point estimates and confidence intervals.
+forester simply requires the left side of the table (in this case, three
+columns with Subgroups and counts for each of two groups) and vectors
+which contain the point estimates and confidence intervals.
 
 ``` r
-library(forestable)
+library(forester)
 
 table <- readxl::read_excel(here::here("inst/extdata/example_figure_data.xlsx"))
 
@@ -44,14 +43,14 @@ table$Subgroup <- ifelse(is.na(table$Placebo),
 # remove indent of the first row
 table$Subgroup[1] <- "All Patients"
 
-# use forestable to create the table with forest plot
-forestable(left_side_data = table[,1:3],
+# use forester to create the table with forest plot
+forester(left_side_data = table[,1:3],
            estimate = table$Estimate,
            ci_low = table$`CI low`,
            ci_high = table$`CI high`,
            display = FALSE,
            xlim = c(-100, 25),
-           file_path = here::here("man/figures/forestable_plot.png"))
+           file_path = here::here("man/figures/forester_plot.png"))
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
@@ -60,14 +59,14 @@ forestable(left_side_data = table[,1:3],
 #> Warning: Removed 8 rows containing missing values (geom_errorbarh).
 ```
 
-![](man/figures/forestable_plot.png)
+![](man/figures/forester_plot.png)
 
-Forestable handles the alignment of the graph and the table
-automatically, so figures with fewer rows or columns should work by
-simply passing a smaller data frame to the function:
+forester handles the alignment of the graph and the table automatically,
+so figures with fewer rows or columns should work by simply passing a
+smaller data frame to the function:
 
 ``` r
-forestable(left_side_data = table[1:12,1:3],
+forester(left_side_data = table[1:12,1:3],
            estimate = table$Estimate[1:12],
            ci_low = table$`CI low`[1:12],
            ci_high = table$`CI high`[1:12],
@@ -82,7 +81,7 @@ forestable(left_side_data = table[1:12,1:3],
 ![](man/figures/fewer_rows.png)
 
 ``` r
-forestable(left_side_data = table[,1],
+forester(left_side_data = table[,1],
            estimate = table$Estimate,
            ci_low = table$`CI low`,
            ci_high = table$`CI high`,
@@ -110,12 +109,12 @@ library(extrafont)
 loadfonts(device = "win")
 windowsFonts("Fira Sans" = windowsFont("Fira Sans"))
 
-forestable(left_side_data = table[,1:3],
+forester(left_side_data = table[,1:3],
            estimate = table$Estimate,
            ci_low = table$`CI low`,
            ci_high = table$`CI high`,
            display = FALSE,
-           file_path = here::here("man/figures/forestable_plot_fira.png"),
+           file_path = here::here("man/figures/forester_plot_fira.png"),
            font_family = "Fira Sans")
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
@@ -123,11 +122,11 @@ forestable(left_side_data = table[,1:3],
 #> Warning: Removed 8 rows containing missing values (geom_errorbarh).
 ```
 
-![](man/figures/forestable_plot_fira.png) Adjusting table properties
-with different fonts will still work:
+![](man/figures/forester_plot_fira.png) Adjusting table properties with
+different fonts will still work:
 
 ``` r
-forestable(left_side_data = table[1:12,1:3],
+forester(left_side_data = table[1:12,1:3],
            estimate = table$Estimate[1:12],
            ci_low = table$`CI low`[1:12],
            ci_high = table$`CI high`[1:12],
@@ -145,7 +144,7 @@ forestable(left_side_data = table[1:12,1:3],
 ``` r
 windowsFonts("Times New Roman" = windowsFont("Times New Roman"))
 
-forestable(left_side_data = table[1:12,1:3],
+forester(left_side_data = table[1:12,1:3],
            estimate = table$Estimate[1:12],
            ci_low = table$`CI low`[1:12],
            ci_high = table$`CI high`[1:12],
@@ -163,12 +162,12 @@ forestable(left_side_data = table[1:12,1:3],
 ## Adding Arrows (Experimental)
 
 ``` r
-forestable(left_side_data = table[,1:3],
+forester(left_side_data = table[,1:3],
            estimate = table$Estimate,
            ci_low = table$`CI low`,
            ci_high = table$`CI high`,
            display = FALSE,
-           file_path = here::here("man/figures/forestable_plot_arrows.png"),
+           file_path = here::here("man/figures/forester_plot_arrows.png"),
            font_family = "Fira Sans",
            xlim = c(-100, 25),
            xbreaks = c(-100, -75, -50, -25, 0, 25),
@@ -182,13 +181,13 @@ forestable(left_side_data = table[,1:3],
 #> Warning: Removed 8 rows containing missing values (geom_errorbarh).
 ```
 
-![](man/figures/forestable_plot_arrows.png)
+![](man/figures/forester_plot_arrows.png)
 
 ## To Do
 
-  - Better additional font support
-  - Additional plot types, including ridgeline plots
-  - Add tests of any kind
+-   Better additional font support
+-   Additional plot types, including ridgeline plots
+-   Add tests of any kind
 
 ## References
 
