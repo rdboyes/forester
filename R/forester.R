@@ -24,7 +24,7 @@
 #' @param arrows Logical. Should there be arrows displayed below the ggplot? Default FALSE. Specify xlim if using arrows.
 #' @param arrow_labels String Vector, length 2. Labels for the arrows. Set arrows to TRUE or this will have no effect.
 #' @param add_plot A ggplot object to add to the right side of the table. To align correctly with rows, 1 unit is the height of a row and y = 0 for the center of the bottom row.
-#' @param add_plot_width Numeric (0 - 1). Width to display add_plot, relative to the width of the table. Default 0.3.
+#' @param add_plot_width Integer (2 - 5). Width to display add_plot. Relative to the width of the whole figure, where 10 would be the whole width. Default 3.
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -54,7 +54,7 @@ forester <- function(left_side_data,
                     arrows = FALSE,
                     arrow_labels = c("Lower", "Higher"),
                     add_plot = NULL,
-                    add_plot_width = 0.3){
+                    add_plot_width = 3){
 
   theme <- gridExtra::ttheme_minimal(core=list(
     fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
@@ -308,34 +308,26 @@ forester <- function(left_side_data,
                                               bottom = 0)
   }
 
+  png_width <- total_width/10 + 1
+  png_height <- (nrow(gdata) + 3)/3.8
+
   if(!is.null(add_plot)){
-    canvas <- ggplot(tibble(x = 0, y = 0), aes(x = x, y = y)) + geom_point() + theme_void()
+    png_width <- png_width/(10 - add_plot_width) * 10
 
-    extra_plot <- canvas +
-      patchwork::inset_element(final,
-                               align_to = "full",
-                               left = 0,
-                               right = 1 - add_plot_width,
-                               top = 1,
-                               bottom = 0) +
-      patchwork::inset_element(add_plot,
-                               align_to = "full",
-                               left = add_plot_width,
-                               right = 1,
-                               top = 1,
-                               bottom = 0.35/nrow(gdata))
+    layout <- c(
+        patchwork::area(t = 1, l = 1, b = (nrow(gdata) + 2), r = (10 - add_plot_width)),
+        patchwork::area(t = 1, l = (11 - add_plot_width), b = nrow(gdata), r = 10)
+      )
 
-    final <- extra_plot
+    final <- final + add_plot + patchwork::plot_layout(design = layout)
   }
 
   ######### save the plot as a png, then display it with magick ################
 
-  png_width <- total_width/10 + 1
 
-  if(!is.null(add_plot)){png_width <- png_width/(1 - add_plot_width)}
 
   ggplot2::ggsave(dpi = dpi,
-         height = (nrow(gdata) + 3)/3.8,
+         height = png_height,
          width = png_width, units = "in",
          filename = file_path)
 

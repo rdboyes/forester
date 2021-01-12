@@ -191,6 +191,29 @@ vertical center of the bottom row is at y = 0, and each row is one unit
 tall on the y axis. `add_plot_width` can be set to customize the width
 of the plot (units are relative to the width of the table).
 
+``` r
+library(ggplot2)
+library(tibble)
+
+ex_plot <- ggplot(tibble(x = rep(1:7, each = 15), y = rep(1:15, times = 7)), aes(x = x, y = y)) +
+  geom_point() + theme_void()
+
+forester(left_side_data = table[1:15,1:3],
+           estimate = table$Estimate[1:15],
+           ci_low = table$`CI low`[1:15],
+           ci_high = table$`CI high`[1:15],
+           display = FALSE,
+           font_family = "Times New Roman",
+           add_plot = ex_plot,
+           file_path = here::here("man/figures/add_dots.png"))
+#> Scale for 'x' is already present. Adding another scale for 'x', which will
+#> replace the existing scale.
+#> Warning: Removed 4 rows containing missing values (geom_point).
+#> Warning: Removed 4 rows containing missing values (geom_errorbarh).
+```
+
+![](man/figures/add_dots.png)
+
 ## To Do
 
 -   Better additional font support

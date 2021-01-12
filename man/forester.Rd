@@ -13,7 +13,7 @@ forester(
   estimate_precision = 1,
   ggplot_width = 30,
   null_line_at = 0,
-  file_path = here::here("forestable_plot.png"),
+  file_path = here::here("forester_plot.png"),
   dpi = 600,
   display = TRUE,
   blank_na = TRUE,
@@ -25,7 +25,9 @@ forester(
   xbreaks = NULL,
   nudge_y = NULL,
   arrows = FALSE,
-  arrow_labels = c("Lower", "Higher")
+  arrow_labels = c("Lower", "Higher"),
+  add_plot = NULL,
+  add_plot_width = 3
 )
 }
 \arguments{
@@ -70,6 +72,10 @@ forester(
 \item{arrows}{Logical. Should there be arrows displayed below the ggplot? Default FALSE. Specify xlim if using arrows.}
 
 \item{arrow_labels}{String Vector, length 2. Labels for the arrows. Set arrows to TRUE or this will have no effect.}
+
+\item{add_plot}{A ggplot object to add to the right side of the table. To align correctly with rows, 1 unit is the height of a row and y = 0 for the center of the bottom row.}
+
+\item{add_plot_width}{Integer (2 - 5). Width to display add_plot. Relative to the width of the whole figure, where 10 would be the whole width. Default 3.}
 }
 \value{
 image
