@@ -25,4 +25,11 @@ Imports:
     rlang,
     systemfonts,
     extrafont,
-    tibble
+    tibble,
+    robvis,
+    metafor,
+    qpdf
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
