@@ -223,9 +223,3 @@ forester(left_side_data = table[1:15,1:3],
     (2020). Two Phase 3 Trials of Inclisiran in Patients with Elevated
     LDL Cholesterol. The New England Journal of Medicine, 382(16),
     1507–1519.
-
-2.  Lisboa Bastos, M., Tavaziva, G., Abidi, S. K., Campbell, J. R.,
-    Haraoui, L.-P., Johnston, J. C., Lan, Z., Law, S., MacLean, E.,
-    Trajman, A., Menzies, D., Benedetti, A., & Ahmad Khan, F. (2020).
-    Diagnostic accuracy of serological tests for covid-19: systematic
-    review and meta-analysis. BMJ , 370, m2516.
