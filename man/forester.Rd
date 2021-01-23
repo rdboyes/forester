@@ -27,7 +27,8 @@ forester(
   arrows = FALSE,
   arrow_labels = c("Lower", "Higher"),
   add_plot = NULL,
-  add_plot_width = 3
+  add_plot_width = 1,
+  width_nudge = 1
 )
 }
 \arguments{
@@ -75,7 +76,9 @@ forester(
 
 \item{add_plot}{A ggplot object to add to the right side of the table. To align correctly with rows, 1 unit is the height of a row and y = 0 for the center of the bottom row.}
 
-\item{add_plot_width}{Integer (2 - 5). Width to display add_plot. Relative to the width of the whole figure, where 10 would be the whole width. Default 3.}
+\item{add_plot_width}{Numeric. Width to display add_plot. Relative to the width of the forest plot, where 1 (the default) is the same width.}
+
+\item{width_nudge}{Numeric. Nudge the alignment horizontally. Default 1.}
 }
 \value{
 image

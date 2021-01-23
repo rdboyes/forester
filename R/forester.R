@@ -24,7 +24,9 @@
 #' @param arrows Logical. Should there be arrows displayed below the ggplot? Default FALSE. Specify xlim if using arrows.
 #' @param arrow_labels String Vector, length 2. Labels for the arrows. Set arrows to TRUE or this will have no effect.
 #' @param add_plot A ggplot object to add to the right side of the table. To align correctly with rows, 1 unit is the height of a row and y = 0 for the center of the bottom row.
-#' @param add_plot_width Integer (2 - 5). Width to display add_plot. Relative to the width of the whole figure, where 10 would be the whole width. Default 3.
+#' @param add_plot_width Numeric. Width to display add_plot. Relative to the width of the forest plot, where 1 (the default) is the same width.
+#' @param width_nudge Numeric. Nudge the alignment horizontally. Default 1.
+#'
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -54,7 +56,8 @@ forester <- function(left_side_data,
                     arrows = FALSE,
                     arrow_labels = c("Lower", "Higher"),
                     add_plot = NULL,
-                    add_plot_width = 3){
+                    add_plot_width = 1,
+                    width_nudge = 1){
 
   theme <- gridExtra::ttheme_minimal(core=list(
     fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
@@ -172,6 +175,25 @@ forester <- function(left_side_data,
     return(table)
   }
 
+  white_column <- function(table, col){
+    col_indexes <- function(table, col, name="core-bg"){
+      l <- table$layout
+      which(l$l==col & l$name==name)
+    }
+
+    ind <- col_indexes(table, col, "core-bg")
+    ind_fg <- col_indexes(table, col, "core-fg")
+
+    for(i in ind){
+      table$grobs[i][[1]][["gp"]] <- grid::gpar(fill = "white", col = "white")
+    }
+
+    for(i in ind_fg){
+      table$grobs[i][[1]][["gp"]] <- grid::gpar(fontfamily = "mono")
+    }
+    return(table)
+  }
+
   ######## calculations for the top and bottom of the plot
 
   gdata$row_num <- (nrow(gdata) - 1):0
@@ -180,7 +202,8 @@ forester <- function(left_side_data,
     h_adj <- dplyr::case_when(
       font_family == "mono" ~ 0,
       font_family == "Fira Sans" ~ .2,
-      font_family == "Times New Roman" ~ .2,
+      font_family == "serif" ~ .2,
+      font_family == "sans" ~ .2,
       TRUE ~ 0.3
     )
   }else{
@@ -228,15 +251,28 @@ forester <- function(left_side_data,
   }
 
   if(!is.null(xlim)){
-    if(is.null(xbreaks)){
-      center <- center + ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1),
+    if(x_scale_linear){
+      if(is.null(xbreaks)){
+        center <- center + ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1),
                                                      limits = xlim,
                                                      expand = c(0,0))
-    }else{
-      center <- center + ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1),
+      }else{
+        center <- center + ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1),
                                                      breaks = xbreaks,
                                             limits = xlim,
                                             expand = c(0,0))
+      }
+    }else{
+      if(is.null(xbreaks)){
+        center <- center + ggplot2::scale_x_log10(labels = scales::number_format(accuracy = 0.1),
+                                                     limits = xlim,
+                                                     expand = c(0,0))
+      }else{
+        center <- center + ggplot2::scale_x_log10(labels = scales::number_format(accuracy = 0.1),
+                                                       breaks = xbreaks,
+                                                       limits = xlim,
+                                                       expand = c(0,0))
+      }
     }
   }
 
@@ -252,10 +288,17 @@ forester <- function(left_side_data,
     a_small_amount <- abs(xlim[1] - xlim[2])/35
 
     # this df has the arrows
-    arrow_df <- data.frame(id = c(1,2),
+    if(x_scale_linear == TRUE){
+      arrow_df <- data.frame(id = c(1,2),
                            xstart = c(null_line_at - a_small_amount, null_line_at + a_small_amount),
                            xend = c(xlim[1] + a_small_amount, xlim[2] - a_small_amount),
                            y = c(1, 1))
+    }else{
+      arrow_df <- data.frame(id = c(1,2),
+                             xstart = c(null_line_at - a_small_amount, null_line_at + a_small_amount),
+                             xend = c(xlim[1], xlim[2]),
+                             y = c(1, 1))
+    }
 
     # create the arrow/label ggplot object
     arrows_plot <- ggplot2::ggplot() +
@@ -280,18 +323,28 @@ forester <- function(left_side_data,
           axis.text.x = ggplot2::element_blank(),
           axis.ticks.x = ggplot2::element_blank(),
           axis.line.x = ggplot2::element_blank())
+
+    if(x_scale_linear == FALSE){
+      arrows_plot <- arrows_plot + ggplot2::scale_x_log10(expand = c(0,0), limits = xlim)
+    }
+
   }
 
 
   ######### using patchwork, overlay the ggplot on the table ###################
 
-  table_final <- mono_column(gridExtra::tableGrob(tdata_print, theme = theme, rows = NULL), ncol(left_side_data) + 1)
+  png_width <- total_width/10 + width_nudge
+  png_height <- (nrow(gdata) + 3)/3.8
 
-  table_final$widths[ncol(left_side_data) + 1] <- grid::unit(ggplot_width/10, "in")
+  if(is.null(add_plot)){
 
-  table_final$heights <- grid::unit(rep(0.255, times = length(table_final$heights)), "in")
+    table_final <- mono_column(gridExtra::tableGrob(tdata_print, theme = theme, rows = NULL), ncol(left_side_data) + 1)
 
-  final <- patchwork::wrap_elements(table_final) +
+    table_final$widths[ncol(left_side_data) + 1] <- grid::unit(ggplot_width/10, "in")
+
+    table_final$heights <- grid::unit(rep(0.255, times = length(table_final$heights)), "in")
+
+    final <- patchwork::wrap_elements(table_final) +
                     patchwork::inset_element(center,
                              align_to = "full",
                              left = (left_width/total_width),
@@ -299,32 +352,59 @@ forester <- function(left_side_data,
                              top = 1,
                              bottom = 0.35/nrow(gdata))
 
-  if(arrows == TRUE){
-    final <- final + patchwork::inset_element(arrows_plot,
+    if(arrows == TRUE){
+      final <- final + patchwork::inset_element(arrows_plot,
                                               align_to = "full",
                                               left = (left_width/total_width),
                                               right = ((ggplot_width + left_width)/total_width),
                                               top = 1.5/nrow(gdata),
                                               bottom = 0)
-  }
+    }
 
-  png_width <- total_width/10 + 1
-  png_height <- (nrow(gdata) + 3)/3.8
+  }else{
+    tdata_print$`  ` <- paste(rep(" ", times = round(ggplot_width, 0)),
+                              collapse = '')
 
-  if(!is.null(add_plot)){
-    png_width <- png_width/(10 - add_plot_width) * 10
+    table_final <- mono_column(gridExtra::tableGrob(tdata_print, theme = theme, rows = NULL), ncol(left_side_data) + 1)
 
-    layout <- c(
-        patchwork::area(t = 1, l = 1, b = (nrow(gdata) + 2), r = (10 - add_plot_width)),
-        patchwork::area(t = 1, l = (11 - add_plot_width), b = nrow(gdata), r = 10)
-      )
+    table_final <- white_column(table_final, ncol(table_final))
 
-    final <- final + add_plot + patchwork::plot_layout(design = layout)
+    table_final$widths[ncol(left_side_data) + 1] <- grid::unit(ggplot_width/10, "in")
+    table_final$widths[ncol(table_final)] <- grid::unit(ggplot_width/10, "in")
+
+    table_final$heights <- grid::unit(rep(0.255, times = length(table_final$heights)), "in")
+
+    new_full_width <- total_width + ggplot_width
+
+    png_width <- new_full_width/10 + width_nudge
+
+    add_plot <- add_plot + ggplot2::scale_y_continuous(limits = c(y_low, y_high), expand = c(0,0))
+
+    final <- patchwork::wrap_elements(table_final) +
+      patchwork::inset_element(center,
+                               align_to = "full",
+                               left = (left_width/new_full_width),
+                               right = ((ggplot_width + left_width)/new_full_width),
+                               top = 1,
+                               bottom = 0.35/nrow(gdata)) +
+      patchwork::inset_element(add_plot,
+                               align_to = "full",
+                               left = total_width/new_full_width,
+                               right = 1,
+                               top = 1,
+                               bottom = 0.35/nrow(gdata))
+
+    if(arrows == TRUE){
+      final <- final + patchwork::inset_element(arrows_plot,
+                                                align_to = "full",
+                                                left = (left_width/new_full_width),
+                                                right = ((ggplot_width + left_width)/new_full_width),
+                                                top = 1.5/nrow(gdata),
+                                                bottom = 0)
+    }
   }
 
   ######### save the plot as a png, then display it with magick ################
-
-
 
   ggplot2::ggsave(dpi = dpi,
          height = png_height,
