@@ -214,11 +214,6 @@ forester(left_side_data = table[1:15,1:3],
 
 ![](man/figures/add_dots.png)
 
-## To Do
-
--   Better additional font support
--   Additional plot types, including ridgeline plots
--   Add tests of any kind
 
 ## References
 
