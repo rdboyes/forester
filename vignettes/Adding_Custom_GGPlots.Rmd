@@ -23,29 +23,6 @@ library(dplyr)
 ```
 
 ```{r}
-# Perform meta-analysis using BCG dataset
-
-  dat <-
-    metafor::escalc(
-      measure = "RR",
-      ai = tpos,
-      bi = tneg,
-      ci = cpos,
-      di = cneg,
-      data = metafor::dat.bcg,
-      slab = paste(author, year, sep = ", ")
-    )
-  
-  rma <- metafor::rma(yi, vi, data = dat)
-
-# Set-up risk of bias dataset to have 13 studies (same as in the dat.bcg data), and a
-# Study column that is used to match to the res data
-
-  dat.rob2 <- rbind(robvis::data_rob2, robvis::data_rob2[1:4, ])
-  dat.rob2$Study <- paste(dat$author, dat$year)
-```
-
-```{r}
 select_rob_columns <- function(dataframe, tool){
   if(tool == "QUADAS-2"){
     return_data <- select(dataframe, D1, D2, D3, D4, Overall)
@@ -196,8 +173,6 @@ create_title_row <- function(title){
 
 ```{r}
 # This will need to be separated out into its own function, with a good deal of error handling
-rob <- dat.rob2
-
 metafor_object_to_table <- function(rma, rob, add_tests = TRUE, overall_estimate = TRUE, subset_col = "Overall", rob_colour = "cochrane", rob_tool = "ROB2"){
   table <- merge(data.frame(Study = gsub(",","",rma$slab),
                              yi = rma$yi,
@@ -338,26 +313,54 @@ appendable_rob_ggplot <- function(rob_gdata, space_last = TRUE, rob_tool = "ROB2
 ```
 
 ```{r}
-rob_blobbogram <- function(rma, rob, tool = "ROB2", ...){
+rob_blobbogram <- function(rma, 
+                           rob, 
+                           rob_tool = "ROB2", 
+                           rob_colour = "cochrane", 
+                           subset_col = "Overall", 
+                           space_last = TRUE,
+                           ...){
 
-  rob_data_for_graph <- metafor_object_to_table(rma, rob)
+  data <- metafor_object_to_table(rma, rob, subset_col = subset_col)
 
-  left_side_data <- dplyr::select(rob_data_for_graph, Study)
+  rob_plot <- select_rob_columns(data, rob_tool) %>% 
+    appendable_rob_ggplot(rob_tool = rob_tool, rob_colour = rob_colour, space_last = space_last)
 
-  estimate <- rob_data_for_graph$est
-  ci_low <- rob_data_for_graph$ci_low
-  ci_high <- rob_data_for_graph$ci_high
-
-  rob_plot <- select_rob_columns(rob_data_for_graph, tool) %>% appendable_rob_ggplot()
-
-  forester::forester(left_side_data,
-         estimate,
-         ci_low,
-         ci_high,
+  forester::forester(dplyr::select(data, Study),
+         data$est,
+         data$ci_low,
+         data$ci_high,
          add_plot = rob_plot,
          ...)
+
 }
 ```
+
+```{r}
+# Perform meta-analysis using BCG dataset
+
+  dat <-
+    metafor::escalc(
+      measure = "RR",
+      ai = tpos,
+      bi = tneg,
+      ci = cpos,
+      di = cneg,
+      data = metafor::dat.bcg,
+      slab = paste(author, year, sep = ", ")
+    )
+  
+  rma <- metafor::rma(yi, vi, data = dat)
+
+# Set-up risk of bias dataset to have 13 studies (same as in the dat.bcg data), and a
+# Study column that is used to match to the res data
+
+  dat.rob2 <- rbind(robvis::data_rob2, robvis::data_rob2[1:4, ])
+  dat.rob2$Study <- paste(dat$author, dat$year)
+  
+  rob <- dat.rob2
+```
+
 
 ```{r}
 rob_blobbogram(rma, rob, 
