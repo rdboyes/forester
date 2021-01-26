@@ -196,7 +196,7 @@ library(ggplot2)
 library(tibble)
 
 ex_plot <- ggplot(tibble(x = rep(1:7, each = 15), y = rep(1:15, times = 7)), aes(x = x, y = y)) +
-  geom_point() + theme_void()
+  geom_point()
 
 forester(left_side_data = table[1:15,1:3],
            estimate = table$Estimate[1:15],
@@ -210,15 +210,10 @@ forester(left_side_data = table[1:15,1:3],
 #> replace the existing scale.
 #> Warning: Removed 4 rows containing missing values (geom_point).
 #> Warning: Removed 4 rows containing missing values (geom_errorbarh).
+#> Warning: Removed 7 rows containing missing values (geom_point).
 ```
 
 ![](man/figures/add_dots.png)
-
-## To Do
-
--   Better additional font support
--   Additional plot types, including ridgeline plots
--   Add tests of any kind
 
 ## References
 
@@ -228,9 +223,3 @@ forester(left_side_data = table[1:15,1:3],
     (2020). Two Phase 3 Trials of Inclisiran in Patients with Elevated
     LDL Cholesterol. The New England Journal of Medicine, 382(16),
     1507–1519.
-
-2.  Lisboa Bastos, M., Tavaziva, G., Abidi, S. K., Campbell, J. R.,
-    Haraoui, L.-P., Johnston, J. C., Lan, Z., Law, S., MacLean, E.,
-    Trajman, A., Menzies, D., Benedetti, A., & Ahmad Khan, F. (2020).
-    Diagnostic accuracy of serological tests for covid-19: systematic
-    review and meta-analysis. BMJ , 370, m2516.
