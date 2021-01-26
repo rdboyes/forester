@@ -196,7 +196,7 @@ library(ggplot2)
 library(tibble)
 
 ex_plot <- ggplot(tibble(x = rep(1:7, each = 15), y = rep(1:15, times = 7)), aes(x = x, y = y)) +
-  geom_point() + theme_void()
+  geom_point()
 
 forester(left_side_data = table[1:15,1:3],
            estimate = table$Estimate[1:15],
@@ -210,10 +210,10 @@ forester(left_side_data = table[1:15,1:3],
 #> replace the existing scale.
 #> Warning: Removed 4 rows containing missing values (geom_point).
 #> Warning: Removed 4 rows containing missing values (geom_errorbarh).
+#> Warning: Removed 7 rows containing missing values (geom_point).
 ```
 
 ![](man/figures/add_dots.png)
-
 
 ## References
 

@@ -378,7 +378,23 @@ forester <- function(left_side_data,
 
     png_width <- new_full_width/10 + width_nudge
 
-    add_plot <- add_plot + ggplot2::scale_y_continuous(limits = c(y_low, y_high), expand = c(0,0))
+    add_plot <- add_plot + ggplot2::scale_y_continuous(limits = c(y_low, y_high), expand = c(0,0)) +
+      ggplot2::theme_classic() + # base theme
+      ggplot2::theme(axis.title.y = ggplot2::element_text(colour = "transparent"), # make axis transparent rather than removing it, this makes alignment much easier
+                     axis.text.y = ggplot2::element_text(colour = "transparent"),
+                     axis.ticks.y = ggplot2::element_line(colour = "transparent"),
+                     axis.line.y = ggplot2::element_line(colour = "transparent"),
+                     axis.title.x = ggplot2::element_text(colour = "transparent"),
+                     axis.text.x = ggplot2::element_text(colour = "transparent"),
+                     axis.ticks.x = ggplot2::element_line(colour = "transparent"),
+                     axis.line.x = ggplot2::element_line(colour = "transparent"),
+                     panel.background = ggplot2::element_rect(fill = "transparent"),
+                     plot.background = ggplot2::element_rect(fill = "transparent", color = NA),
+                     panel.grid.major = ggplot2::element_blank(),
+                     panel.grid.minor = ggplot2::element_blank(),
+                     legend.background = ggplot2::element_rect(fill = "transparent"),
+                     legend.box.background = ggplot2::element_rect(fill = "transparent"),
+                     legend.position = "none")
 
     final <- patchwork::wrap_elements(table_final) +
       patchwork::inset_element(center,

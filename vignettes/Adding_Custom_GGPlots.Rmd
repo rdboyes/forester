@@ -19,30 +19,37 @@ library(forester)
 library(metafor)
 library(robvis)
 library(ggplot2)
+library(dplyr)
 ```
 
 ```{r}
-# Perform meta-analysis using BCG dataset
-
-  dat <-
-    metafor::escalc(
-      measure = "RR",
-      ai = tpos,
-      bi = tneg,
-      ci = cpos,
-      di = cneg,
-      data = metafor::dat.bcg,
-      slab = paste(author, year, sep = ", ")
-    )
-  
-  rma <- metafor::rma(yi, vi, data = dat)
-
-# Set-up risk of bias dataset to have 13 studies (same as in the dat.bcg data), and a
-# Study column that is used to match to the res data
-
-  dat.rob2 <- rbind(robvis::data_rob2, robvis::data_rob2[1:4, ])
-  dat.rob2$Study <- paste(dat$author, dat$year)
+select_rob_columns <- function(dataframe, tool){
+  if(tool == "QUADAS-2"){
+    return_data <- select(dataframe, D1, D2, D3, D4, Overall)
+  }else if(tool == "ROB1"){
+    return_data <- select(dataframe,
+           S = Study,
+           RS = Random.sequence.generation.,
+           A = Allocation.concealment.,
+           BP = Blinding.of.participants.and.personnel.,
+           BO = Blinding.of.outcome.assessment,
+           I = Incomplete.outcome.data, 
+           SR = Selective.reporting.,
+           Oth = Other.sources.of.bias., 
+           Overall = Overall)
+  }else if(tool == "ROB2"){
+    return_data <- select(dataframe, D1, D2, D3, D4, D5, Overall)
+  }else if(tool == "ROB2-Cluster"){
+    return_data <- select(dataframe, D1, D1b, D2, D3, D4, D5, Overall)
+  }else if(tool == "Robins"){
+    return_data <- select(dataframe, D1, D2, D3, D4, D5, D6, D7, Overall)
+  }else{
+    stop("Tool is not supported.")
+  }
+  return(return_data)
+}
 ```
+
 
 ```{r}
 get_colour <- function(tool, colour) {
@@ -103,7 +110,9 @@ get_colour <- function(tool, colour) {
 metafor_function <- function(res, data = dat){
   eval(rlang::call_modify(res$call, data = quote(data)))
 }
+```
 
+```{r}
 create_subtotal_row <- function(rma,
                                  name = "Subtotal",
                                  single_group = FALSE,
@@ -152,21 +161,20 @@ create_subtotal_row <- function(rma,
      return(row)
    }
 }
+```
 
+
+```{r}
 create_title_row <- function(title){
   return(data.frame(Study = title, est = NA, ci_low = NA, ci_high = NA))
 }
+```
 
 
+```{r}
 # This will need to be separated out into its own function, with a good deal of error handling
-rob_tool = "ROB2"
-rob_colour = "cochrane"
-subset_col = "Overall"
-add_tests = TRUE
-overall_estimate = TRUE
-rob <- dat.rob2
-
-table <- merge(data.frame(Study = gsub(",","",rma$slab),
+metafor_object_to_table <- function(rma, rob, add_tests = TRUE, overall_estimate = TRUE, subset_col = "Overall", rob_colour = "cochrane", rob_tool = "ROB2"){
+  table <- merge(data.frame(Study = gsub(",","",rma$slab),
                              yi = rma$yi,
                              vi = rma$vi,
                              est = exp(rma$yi),
@@ -176,117 +184,108 @@ table <- merge(data.frame(Study = gsub(",","",rma$slab),
                              rob,
                              by = "Study")
 
-# Reorder data
-table <- dplyr::select(table, Study, dplyr::everything())
+  # Reorder data
+  table <- dplyr::select(table, Study, dplyr::everything())
 
-# Define levels by which to subset (ideal use case in ROB2, but allow any)
-if (subset_col == "Overall" & rob_tool == "ROB2") {
-# Set ROB2 levels
-levels <- c("Low", "Some concerns", "High")
+  # Define levels by which to subset (ideal use case in ROB2, but allow any)
+  if (subset_col == "Overall" & rob_tool == "ROB2") {
+  # Set ROB2 levels
+  levels <- c("Low", "Some concerns", "High")
 
-# Limit to those levels actually present in the dataset
-levels <- levels[which(levels %in% unique(table[[subset_col]]))]
-} else {
-# Clean level names so that they look nice in the table
-table[[subset_col]] <- stringr::str_to_sentence(table[[subset_col]])
-levels <- unique(table[[subset_col]])
-}
+  # Limit to those levels actually present in the dataset
+  levels <- levels[which(levels %in% unique(table[[subset_col]]))]
+  } else {
+  # Clean level names so that they look nice in the table
+  table[[subset_col]] <- stringr::str_to_sentence(table[[subset_col]])
+  levels <- unique(table[[subset_col]])
+  }
 
 
-# Work out if only one level is present. Passed to create_subtotal_row(), so
-# that if only one group, no subtotal is created.
-single_group <- ifelse(length(levels)==1,TRUE,FALSE)
+  # Work out if only one level is present. Passed to create_subtotal_row(), so
+  # that if only one group, no subtotal is created.
+  single_group <- ifelse(length(levels)==1,TRUE,FALSE)
 
-# Subset data by levels, run user-defined metafor function on them, and
-# recombine along with Overall rma output
-subset <-lapply(levels, function(level){dplyr::filter(table, !!as.symbol(subset_col) == level)})
-names(subset) <- levels
+  # Subset data by levels, run user-defined metafor function on them, and
+  # recombine along with Overall rma output
+  subset <-lapply(levels, function(level){dplyr::filter(table, !!as.symbol(subset_col) == level)})
+  names(subset) <- levels
 
-# This takes the same metafor::rma function (including args) and runs it on each subsetted dataset
-subset_res <- lapply(levels, function(level){metafor_function(rma, data = subset[[level]])})
-names(subset_res) <- levels
+  # This takes the same metafor::rma function (including args) and runs it on each subsetted dataset
+  subset_res <- lapply(levels, function(level){metafor_function(rma, data = subset[[level]])})
+  names(subset_res) <- levels
 
-# This
-subset_tables <-
-  lapply(levels, function(level){
-    rbind(
-      create_title_row(level),
-      dplyr::select(subset[[level]], Study, .data$est, .data$ci_low, .data$ci_high),
-      create_subtotal_row(subset_res[[level]], single_group = single_group, add_tests = add_tests)
-    )
-  })
+  # This
+  subset_tables <-
+    lapply(levels, function(level){
+      rbind(
+        create_title_row(level),
+        dplyr::select(subset[[level]], Study, .data$est, .data$ci_low, .data$ci_high),
+        create_subtotal_row(subset_res[[level]], single_group = single_group, add_tests = add_tests)
+      )
+    })
 
-subset_table <- do.call("rbind", lapply(subset_tables, function(x) x))
+  subset_table <- do.call("rbind", lapply(subset_tables, function(x) x))
 
-ordered_table <- rbind(subset_table,
+  ordered_table <- rbind(subset_table,
                           if (overall_estimate) {
                             create_subtotal_row(rma, "Overall", add_blank = FALSE)
                           })
 
-rob_data_for_graph <- dplyr::left_join(ordered_table, rob, by = "Study")
-
-# Indent the subgroup if there is a number in the placebo column
-ordered_table$Study <- as.character(ordered_table$Study)
-ordered_table$Study <- ifelse(!(ordered_table$Study %in% levels) & ordered_table$Study != "Overall",
-                                 paste0(" ", ordered_table$Study),
+  # Indent the subgroup if there is a number in the placebo column
+  ordered_table$Study <- as.character(ordered_table$Study)
+  ordered_table$Study <- ifelse(!(ordered_table$Study %in% levels) & ordered_table$Study != "Overall",
+                                 paste0("  ", ordered_table$Study),
                                  ordered_table$Study)
+  
+  rob$Study <- paste0("  ", rob$Study)
+  
+  return(dplyr::left_join(ordered_table, rob, by = "Study"))
+}
+```
 
+```{r}
+appendable_rob_ggplot <- function(rob_gdata, space_last = TRUE, rob_tool = "ROB2", rob_colour = "cochrane"){
+  # given a data frame with arbitrary column names, makes a rob plot with those columns
+  # when space_last = true, separates the last column by a half width (usually for an overall)
+  # NA rows indicate spaces
 
-left_side_data <- dplyr::select(ordered_table, Study)
+  #### turn the rob input into ggplot-able data ################################
 
-estimate <- ordered_table$est
-ci_low <- ordered_table$ci_low
-ci_high <- ordered_table$ci_high
+  columns <- colnames(rob_gdata)
+  
+  rob_gdata$row_num = (nrow(rob_gdata) - 1):0
 
-# Set subset titles to bold.italic
-bold_vec <- ifelse(stringr::str_trim(as.vector(left_side_data$Study)) %in% c(levels),
-            "bold.italic",
-            "plain")
+  rob_gdata <- tidyr::pivot_longer(rob_gdata, !.data$row_num, names_to = "x", values_to = "colour")
 
-# Set overall title to bold
-bold_vec <-
-  ifelse(stringr::str_trim(as.vector(left_side_data$Study)) %in% c("Overall"),
-            "bold",
-            bold_vec)
+  rob_gdata <- dplyr::mutate(rob_gdata, x = purrr::map_dbl(x, ~which(. == columns)))
 
-#### turn the rob input into ggplot-able data ################################
+  if(space_last == TRUE){
+    rob_gdata$x[rob_gdata$x == max(rob_gdata$x, na.rm = TRUE)] <- max(rob_gdata$x, na.rm = TRUE) + 0.5
+  }
 
-rob_gdata <- dplyr::select(rob_data_for_graph, .data$D1:.data$Overall)
+  rob_gdata <- rob_gdata[stats::complete.cases(rob_gdata), ]
 
-rob_gdata$row_num = (nrow(rob_gdata) - 1):0
+  rob_colours <- get_colour(rob_tool, rob_colour)
 
-rob_gdata <- dplyr::rename(rob_gdata, D6 = .data$Overall)
-
-rob_gdata <- tidyr::pivot_longer(rob_gdata, !.data$row_num, names_to = "x", values_to = "colour")
-
-rob_gdata <- dplyr::mutate(rob_gdata, x = as.integer(substr(.data$x, 2, 2)))
-
-rob_gdata$x[rob_gdata$x == 6] <- 6.5
-
-rob_colours <- get_colour(rob_tool, rob_colour)
-
-bias_colours <- c("High" = rob_colours$high_colour,
+  bias_colours <- c("High" = rob_colours$high_colour,
                  "Some concerns" = rob_colours$concerns_colour,
                  "Low" = rob_colours$low_colour,
                  "No information" = rob_colours$ni_colour)
 
-titles <- data.frame(names = c("D1", "D2", "D3", "D4", "D5", "Overall"),
-                    y = max(rob_gdata$row_num),
-                    x = c(1, 2, 3, 4, 5, 6.5))
+  titles <- data.frame(names = columns,
+                    y = (max(rob_gdata$row_num) + 1),
+                    x = unique(rob_gdata$x))
 
-rectangles <- rob_gdata[stats::complete.cases(rob_gdata), ]
+  rectangles <- rob_gdata
 
-rectangles$xmin <- rectangles$x - 0.5
-rectangles$xmax <- rectangles$x + 0.5
-rectangles$ymin <- rectangles$row_num - 0.5
-rectangles$ymax <- rectangles$row_num + 0.5
-```
+  rectangles$xmin <- rectangles$x - 0.5
+  rectangles$xmax <- rectangles$x + 0.5
+  rectangles$ymin <- rectangles$row_num - 0.5
+  rectangles$ymax <- rectangles$row_num + 0.5
 
+  ############################## the rob ggplot figure #########################
 
-```{r}
-############################## the rob ggplot figure #########################
-
-rob_plot <- ggplot2::ggplot(data = rob_gdata[stats::complete.cases(rob_gdata), ]) +
+  rob_plot <- ggplot2::ggplot(data = rob_gdata) +
      ggplot2::geom_rect(data = rectangles,
                         ggplot2::aes(xmin = .data$xmin,
                                      ymin = .data$ymin,
@@ -297,24 +296,8 @@ rob_plot <- ggplot2::ggplot(data = rob_gdata[stats::complete.cases(rob_gdata), ]
      ggplot2::geom_point(size = 5, ggplot2::aes(x = .data$x, y = .data$row_num, colour = .data$colour)) +
      ggplot2::geom_point(size = 3, ggplot2::aes(x = .data$x, y = .data$row_num, shape = .data$colour)) +
      ggplot2::scale_y_continuous(expand = c(0,0)) + # position dots
-     ggplot2::scale_x_continuous(expand = c(0,0), limits = c(0, 7.5)) +
+     ggplot2::scale_x_continuous(expand = c(0,0), limits = c(0, (max(rob_gdata$x) + 1))) +
      ggplot2::geom_text(data = titles, ggplot2::aes(label = .data$names, x = .data$x, y = .data$y)) +
-     ggplot2::theme_classic() + # base theme
-     ggplot2::theme(axis.title.y = ggplot2::element_text(colour = "transparent"), #remove axis, make bg transparent
-                    axis.text.y = ggplot2::element_text(colour = "transparent"),
-                    axis.ticks.y = ggplot2::element_line(colour = "transparent"),
-                    axis.line.y = ggplot2::element_line(colour = "transparent"),
-                    axis.title.x = ggplot2::element_text(colour = "transparent"), # remove axis, make bg transparent
-                    axis.text.x = ggplot2::element_text(colour = "transparent"),
-                    axis.ticks.x = ggplot2::element_line(colour = "transparent"),
-                    axis.line.x = ggplot2::element_line(colour = "transparent"),
-                    panel.background = ggplot2::element_rect(fill = "transparent"),
-                    plot.background = ggplot2::element_rect(fill = "transparent", color = NA),
-                    panel.grid.major = ggplot2::element_blank(),
-                    panel.grid.minor = ggplot2::element_blank(),
-                    legend.background = ggplot2::element_rect(fill = "transparent"),
-                    legend.box.background = ggplot2::element_rect(fill = "transparent"),
-                    legend.position = "none") +
      ggplot2::scale_color_manual(values = bias_colours,
                                  na.translate = FALSE) +
      ggplot2::scale_shape_manual(
@@ -324,26 +307,76 @@ rob_plot <- ggplot2::ggplot(data = rob_gdata[stats::complete.cases(rob_gdata), ]
          "Low" = 43,
          "No information" = 63
        )) 
+
+  return(rob_plot)
+}
 ```
 
 ```{r}
-forester::forester(left_side_data,
-         estimate,
-         ci_low,
-         ci_high,
-         null_line_at = 1,
-         font_family = "serif",
-         x_scale_linear = FALSE,
+rob_blobbogram <- function(rma, 
+                           rob, 
+                           rob_tool = "ROB2", 
+                           rob_colour = "cochrane", 
+                           subset_col = "Overall", 
+                           space_last = TRUE,
+                           ...){
+
+  data <- metafor_object_to_table(rma, rob, subset_col = subset_col)
+
+  rob_plot <- select_rob_columns(data, rob_tool) %>% 
+    appendable_rob_ggplot(rob_tool = rob_tool, rob_colour = rob_colour, space_last = space_last)
+
+  forester::forester(dplyr::select(data, Study),
+         data$est,
+         data$ci_low,
+         data$ci_high,
          add_plot = rob_plot,
-         xlim = c(0.09, 7),
-         xbreaks = c(.2, .5, 1, 2, 5),
-         arrows = TRUE,
-         arrow_labels = c("Low", "High"),
-         nudge_y = -0.2,
-         estimate_precision = 2,
-         display = FALSE,
-         file_path = here::here("vignettes/forester_plot_robvis.png"))
+         ...)
+
+}
 ```
+
+```{r}
+# Perform meta-analysis using BCG dataset
+
+  dat <-
+    metafor::escalc(
+      measure = "RR",
+      ai = tpos,
+      bi = tneg,
+      ci = cpos,
+      di = cneg,
+      data = metafor::dat.bcg,
+      slab = paste(author, year, sep = ", ")
+    )
+  
+  rma <- metafor::rma(yi, vi, data = dat)
+
+# Set-up risk of bias dataset to have 13 studies (same as in the dat.bcg data), and a
+# Study column that is used to match to the res data
+
+  dat.rob2 <- rbind(robvis::data_rob2, robvis::data_rob2[1:4, ])
+  dat.rob2$Study <- paste(dat$author, dat$year)
+  
+  rob <- dat.rob2
+```
+
+
+```{r}
+rob_blobbogram(rma, rob, 
+               null_line_at = 1,
+               font_family = "serif",
+               x_scale_linear = FALSE,
+               xlim = c(0.05, 7),
+               xbreaks = c(.2, .5, 1, 2, 5),
+               arrows = TRUE,
+               arrow_labels = c("Low", "High"),
+               nudge_y = -0.2,
+               estimate_precision = 2,
+               display = FALSE,
+               file_path = here::here("vignettes/forester_plot_robvis.png"))
+```
+
 
 ![](forester_plot_robvis.png)
 
