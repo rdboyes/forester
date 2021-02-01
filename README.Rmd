@@ -159,7 +159,7 @@ Custom ggplot objects can be passed to the `forester` function using the paramet
 library(ggplot2)
 library(tibble)
 
-ex_plot <- ggplot(tibble(x = rep(1:7, each = 15), y = rep(1:15, times = 7)), aes(x = x, y = y)) +
+ex_plot <- ggplot(tibble(x = rep(1:7, each = 15), y = rep(0:14, times = 7)), aes(x = x, y = y)) +
   geom_point()
 
 forester(left_side_data = table[1:15,1:3],
