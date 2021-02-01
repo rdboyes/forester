@@ -195,7 +195,7 @@ of the plot (units are relative to the width of the table).
 library(ggplot2)
 library(tibble)
 
-ex_plot <- ggplot(tibble(x = rep(1:7, each = 15), y = rep(1:15, times = 7)), aes(x = x, y = y)) +
+ex_plot <- ggplot(tibble(x = rep(1:7, each = 15), y = rep(0:14, times = 7)), aes(x = x, y = y)) +
   geom_point()
 
 forester(left_side_data = table[1:15,1:3],
@@ -210,7 +210,6 @@ forester(left_side_data = table[1:15,1:3],
 #> replace the existing scale.
 #> Warning: Removed 4 rows containing missing values (geom_point).
 #> Warning: Removed 4 rows containing missing values (geom_errorbarh).
-#> Warning: Removed 7 rows containing missing values (geom_point).
 ```
 
 ![](man/figures/add_dots.png)
