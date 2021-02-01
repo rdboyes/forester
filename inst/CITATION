@@ -1,10 +1,11 @@
 citHeader("To cite forester in publications use:")
 
 citEntry(
-  entry    = "Misc",
+  entry    = "Manual",
   title    = "Forester: An R package for creating publication-ready forest plots.",
   author   = "Randy Boyes",
   year     = "2021",
+  note     = "R package version 0.3.0",
   url      = "https://github.com/rdboyes/forester",
-  textVersion = "Boyes, Randy (2021). Forester: An R package for creating publication-ready forest plots. Available at: https://github.com/rdboyes/forester"
+  textVersion = "Boyes, Randy (2021). Forester: An R package for creating publication-ready forest plots. R package version 0.3.0. Available at: https://github.com/rdboyes/forester"
 )
