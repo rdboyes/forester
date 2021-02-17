@@ -28,6 +28,7 @@ forester(
   arrow_labels = c("Lower", "Higher"),
   add_plot = NULL,
   add_plot_width = 1,
+  add_plot_gap = FALSE,
   width_nudge = 1
 )
 }
@@ -52,7 +53,7 @@ forester(
 
 \item{dpi}{Numeric. The image resolution in dpi, default 600}
 
-\item{display}{Logical. Show the table in RStudio viewer? Default TRUE}
+\item{display}{Logical. Show the table in RStudio viewer? Default TRUE. If you're using forester inside of RMarkdown, change to false and display the generated images using standard markdown syntax (See file_path).}
 
 \item{blank_na}{Logical. Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown}
 
@@ -78,7 +79,9 @@ forester(
 
 \item{add_plot_width}{Numeric. Width to display add_plot. Relative to the width of the forest plot, where 1 (the default) is the same width.}
 
-\item{width_nudge}{Numeric. Nudge the alignment horizontally. Default 1.}
+\item{add_plot_gap}{Logical. Should there be space added between the plot and the main figure? Default FALSE.}
+
+\item{width_nudge}{Numeric. Nudge the alignment horizontally. Default 1. It's difficult to explain exactly how to use this - trial and error is recommended.}
 }
 \value{
 image
