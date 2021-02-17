@@ -12,7 +12,7 @@
 #' @param null_line_at Numeric. Default 0. Change to 1 if using relative measures such as OR, RR.
 #' @param file_path String. Where to save the image, default "forestable_plot.png" in the current working directory.
 #' @param dpi Numeric. The image resolution in dpi, default 600
-#' @param display Logical. Show the table in RStudio viewer? Default TRUE
+#' @param display Logical. Show the table in RStudio viewer? Default TRUE. If you're using forester inside of RMarkdown, change to false and display the generated images using standard markdown syntax (See file_path).
 #' @param blank_na Logical. Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown
 #' @param font_family String. The font to use for the ggplot and table. Default "mono".
 #' @param estimate_col_name String. The name for the generated estimate column. Default "Estimate"
@@ -25,7 +25,9 @@
 #' @param arrow_labels String Vector, length 2. Labels for the arrows. Set arrows to TRUE or this will have no effect.
 #' @param add_plot A ggplot object to add to the right side of the table. To align correctly with rows, 1 unit is the height of a row and y = 0 for the center of the bottom row.
 #' @param add_plot_width Numeric. Width to display add_plot. Relative to the width of the forest plot, where 1 (the default) is the same width.
-#' @param width_nudge Numeric. Nudge the alignment horizontally. Default 1.
+#' @param add_plot_gap Logical. Should there be space added between the plot and the main figure? Default FALSE.
+#' @param width_nudge Numeric. Nudge the alignment horizontally. Default 1. It's difficult to explain exactly how to use this - trial and error is recommended.
+#'
 #'
 #'
 #' @return image
@@ -57,6 +59,7 @@ forester <- function(left_side_data,
                     arrow_labels = c("Lower", "Higher"),
                     add_plot = NULL,
                     add_plot_width = 1,
+                    add_plot_gap = FALSE,
                     width_nudge = 1){
 
   theme <- gridExtra::ttheme_minimal(core=list(
@@ -378,10 +381,11 @@ forester <- function(left_side_data,
 
     png_width <- new_full_width/10 + width_nudge
 
-    add_plot <- add_plot + ggplot2::scale_y_continuous(limits = c(y_low, y_high), expand = c(0,0)) +
-      ggplot2::theme_classic() + # base theme
-      ggplot2::theme(axis.title.y = ggplot2::element_text(colour = "transparent"), # make axis transparent rather than removing it, this makes alignment much easier
-                     axis.text.y = ggplot2::element_text(colour = "transparent"),
+    if (add_plot_gap){
+      add_plot <- add_plot + ggplot2::scale_y_continuous(limits = c(y_low, y_high), expand = c(0,0)) +
+        ggplot2::theme_classic() + # base theme
+        ggplot2::theme(axis.title.y = ggplot2::element_text(colour = "transparent"), # make axis transparent rather than removing it
+                     axis.text.y = ggplot2::element_text(colour = "transparent"), # this makes alignment much easier
                      axis.ticks.y = ggplot2::element_line(colour = "transparent"),
                      axis.line.y = ggplot2::element_line(colour = "transparent"),
                      axis.title.x = ggplot2::element_text(colour = "transparent"),
@@ -395,6 +399,25 @@ forester <- function(left_side_data,
                      legend.background = ggplot2::element_rect(fill = "transparent"),
                      legend.box.background = ggplot2::element_rect(fill = "transparent"),
                      legend.position = "none")
+    }else{
+      add_plot <- add_plot + ggplot2::scale_y_continuous(limits = c(y_low, y_high), expand = c(0,0)) +
+        ggplot2::theme_classic() + # base theme
+        ggplot2::theme(axis.title.x = ggplot2::element_text(colour = "transparent"), # make x axis (only) transparent
+                       axis.text.x = ggplot2::element_text(colour = "transparent"),
+                       axis.ticks.x = ggplot2::element_line(colour = "transparent"),
+                       axis.line.x = ggplot2::element_line(colour = "transparent"),
+                       axis.title.y = ggplot2::element_blank(),
+                       axis.text.y = ggplot2::element_blank(),
+                       axis.ticks.y = ggplot2::element_blank(),
+                       axis.line.y = ggplot2::element_blank(),
+                       panel.background = ggplot2::element_rect(fill = "transparent"),
+                       plot.background = ggplot2::element_rect(fill = "transparent", color = NA),
+                       panel.grid.major = ggplot2::element_blank(),
+                       panel.grid.minor = ggplot2::element_blank(),
+                       legend.background = ggplot2::element_rect(fill = "transparent"),
+                       legend.box.background = ggplot2::element_rect(fill = "transparent"),
+                       legend.position = "none")
+    }
 
     final <- patchwork::wrap_elements(table_final) +
       patchwork::inset_element(center,

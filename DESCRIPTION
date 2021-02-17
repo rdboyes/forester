@@ -28,7 +28,10 @@ Imports:
     tibble,
     robvis,
     metafor,
-    qpdf
+    qpdf,
+    purrr,
+    stringr,
+    tidyr
 Suggests: 
     knitr,
     rmarkdown
