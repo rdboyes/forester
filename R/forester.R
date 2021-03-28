@@ -20,14 +20,15 @@
 #' @param x_scale_linear Logical. Default TRUE, change to FALSE for log scale
 #' @param xlim Vector. Manually specify limits for the x axis as a vector length 2, i.e. c(low, high)
 #' @param xbreaks Vector. X axis breaks to label. Specify limits in xlim if using this option.
+#' @param nudge_x Numeric. Nudge the alignment horizontally. Default 1. Higher values make the entire plot wider and consequently space out the elements of the figure.
 #' @param nudge_y Numeric. Allows small changes to the vertical alignment of the forest plot points. 1 unit is approximately the height of 1 row.
 #' @param arrows Logical. Should there be arrows displayed below the ggplot? Default FALSE. Specify xlim if using arrows.
 #' @param arrow_labels String Vector, length 2. Labels for the arrows. Set arrows to TRUE or this will have no effect.
 #' @param add_plot A ggplot object to add to the right side of the table. To align correctly with rows, 1 unit is the height of a row and y = 0 for the center of the bottom row.
 #' @param add_plot_width Numeric. Width to display add_plot. Relative to the width of the forest plot, where 1 (the default) is the same width.
 #' @param add_plot_gap Logical. Should there be space added between the plot and the main figure? Default FALSE.
-#' @param width_nudge Numeric. Nudge the alignment horizontally. Default 1. It's difficult to explain exactly how to use this - trial and error is recommended.
-#'
+#' @param point_sizes Vector. Length should be equal to 1 or nrow(left_side_data). The sizes of the points in the center plot, where 3.25 is the default.
+#' @param point_shapes Vector. Length should be equal to 1 or nrow(left_side_data). The shapes of the points in the center plot, where 16 (a filled circle) is the default.
 #'
 #'
 #' @return image
@@ -55,12 +56,17 @@ forester <- function(left_side_data,
                     xlim = NULL,
                     xbreaks = NULL,
                     nudge_y = NULL,
+                    nudge_x = 1,
                     arrows = FALSE,
                     arrow_labels = c("Lower", "Higher"),
                     add_plot = NULL,
                     add_plot_width = 1,
                     add_plot_gap = FALSE,
-                    width_nudge = 1){
+                    point_sizes = 3,
+                    point_shapes = 16
+
+
+                    ){
 
   theme <- gridExtra::ttheme_minimal(core=list(
     fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
@@ -216,17 +222,50 @@ forester <- function(left_side_data,
   y_low <- -.5 - .1381 * log(nrow(gdata)) + h_adj
   y_high <- 1.017 * nrow(gdata) - 0.6
 
+  #### add shapes and sizes to gdata ########
+
+  gdata$shape <- point_shapes
+  gdata$sizes <- point_sizes
+
+  #### if a ci will be out of bounds, add arrow on the oob side  ###############
+
+  g_oob <- tibble::tibble()
+
+  if(!is.null(xlim)){
+    oob_arrows <- gdata
+
+    oob_arrows$x_low <- xlim[1]
+    oob_arrows$x_high <- xlim[2]
+
+    ra <- sum(oob_arrows$ci_high > oob_arrows$x_high, na.rm = T) > 0
+    la <- sum(oob_arrows$ci_low < oob_arrows$x_low, na.rm = T) > 0
+
+    if(ra){
+      right_arrows <- dplyr::select(dplyr::filter(oob_arrows, ci_high > x_high), start = estimate, end = x_high, y = row_num)
+    }
+    if(la){
+      left_arrows <- dplyr::select(dplyr::filter(oob_arrows, ci_low < x_low), start = estimate, end = x_low, y = row_num)
+    }
+
+    if(ra && !la){
+      g_oob <- right_arrows
+    }else if(!ra && la){
+      g_oob <- left_arrows
+    }else if(ra && la){
+      g_oob <- rbind.data.frame(right_arrows, left_arrows)
+    }
+  }
+
   ########## the main figure - this will be overlaid on the table ##############
 
-  center <- ggplot2::ggplot(data = gdata, ggplot2::aes(y = .data$row_num, x = estimate)) +
-    ggplot2::geom_point(size = 3.25) + # the point estimates, with big dots
-    ggplot2::geom_errorbarh(ggplot2::aes(y = .data$row_num,
+  center <- ggplot2::ggplot() +
+    ggplot2::geom_point(data = gdata, ggplot2::aes(y = row_num, x = estimate, size = sizes, shape = shape)) +
+    ggplot2::geom_errorbarh(data = gdata, ggplot2::aes(y = row_num,
           xmin = ci_low,
           xmax = ci_high),
-          height = .25) +
+          height = .25,
+          na.rm = TRUE) +
     ggplot2::theme_classic() + # base theme
-    ggplot2::scale_y_continuous(expand = c(0,0), #remove padding
-          limits = c(y_low, y_high)) + # position dots
     ggplot2::theme(axis.title.y = ggplot2::element_blank(), # remove axis, make bg transparent
           axis.text.y = ggplot2::element_blank(),
           axis.ticks.y = ggplot2::element_blank(),
@@ -241,41 +280,52 @@ forester <- function(left_side_data,
           legend.box.background = ggplot2::element_rect(fill = "transparent")) +
     ggplot2::geom_vline(xintercept = null_line_at, linetype = "dashed") +
     ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1)) +
+    ggplot2::scale_y_continuous(expand = c(0,0)) +
+    ggplot2::scale_shape_identity() +
+    ggplot2::scale_size_identity() +
       ggplot2::xlab("")
 
-  ######## Optional customizations here ########
+  ### add oob arrows if required ###
 
-  if(x_scale_linear){
-    center <- center + ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1)) +
-      ggplot2::xlab("")
-  }else{
-    center <- center + ggplot2::scale_x_log10(labels = scales::number_format(accuracy = 0.1)) +
-      ggplot2::xlab("")
+  if(nrow(g_oob) > 0){
+    center <- center +
+      ggplot2::geom_segment(data = g_oob,
+                            ggplot2::aes(x = start,
+                                             xend = end,
+                                             y = y,
+                                             yend = y),
+                            arrow = ggplot2::arrow(angle = 15,
+                                             type = "closed",
+                                             length = grid::unit(0.1, "in")))
   }
 
-  if(!is.null(xlim)){
-    if(x_scale_linear){
-      if(is.null(xbreaks)){
-        center <- center + ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1),
-                                                     limits = xlim,
-                                                     expand = c(0,0))
-      }else{
-        center <- center + ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1),
-                                                     breaks = xbreaks,
-                                            limits = xlim,
+  ####### fix plot zoom ######
+
+  if(is.null(xlim)){
+    center <- center + ggplot2::coord_cartesian(ylim = c(y_low, y_high))
+  }else{
+    center <- center + ggplot2::coord_cartesian(ylim = c(y_low, y_high), xlim = xlim)
+  }
+
+  ######## handle breaks, log vs linear scales ########
+
+  if(x_scale_linear){
+    if(is.null(xbreaks)){
+      center <- center + ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1),
                                             expand = c(0,0))
-      }
     }else{
-      if(is.null(xbreaks)){
-        center <- center + ggplot2::scale_x_log10(labels = scales::number_format(accuracy = 0.1),
-                                                     limits = xlim,
-                                                     expand = c(0,0))
-      }else{
-        center <- center + ggplot2::scale_x_log10(labels = scales::number_format(accuracy = 0.1),
-                                                       breaks = xbreaks,
-                                                       limits = xlim,
-                                                       expand = c(0,0))
-      }
+      center <- center + ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1),
+                                            breaks = xbreaks,
+                                            expand = c(0,0))
+    }
+  }else{
+    if(is.null(xbreaks)){
+      center <- center + ggplot2::scale_x_log10(labels = scales::number_format(accuracy = 0.1),
+                                            expand = c(0,0))
+    }else{
+      center <- center + ggplot2::scale_x_log10(labels = scales::number_format(accuracy = 0.1),
+                                            breaks = xbreaks,
+                                            expand = c(0,0))
     }
   }
 
@@ -336,7 +386,7 @@ forester <- function(left_side_data,
 
   ######### using patchwork, overlay the ggplot on the table ###################
 
-  png_width <- total_width/10 + width_nudge
+  png_width <- total_width/10 + nudge_x
   png_height <- (nrow(gdata) + 3)/3.8
 
   if(is.null(add_plot)){
@@ -379,7 +429,7 @@ forester <- function(left_side_data,
 
     new_full_width <- total_width + ggplot_width
 
-    png_width <- new_full_width/10 + width_nudge
+    png_width <- new_full_width/10 + nudge_x
 
     if (add_plot_gap){
       add_plot <- add_plot + ggplot2::scale_y_continuous(limits = c(y_low, y_high), expand = c(0,0)) +
