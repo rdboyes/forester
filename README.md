@@ -53,10 +53,7 @@ forester(left_side_data = table[,1:3],
            file_path = here::here("man/figures/forester_plot.png"))
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
-#> Scale for 'x' is already present. Adding another scale for 'x', which will
-#> replace the existing scale.
 #> Warning: Removed 8 rows containing missing values (geom_point).
-#> Warning: Removed 8 rows containing missing values (geom_errorbarh).
 ```
 
 ![](man/figures/forester_plot.png)
@@ -75,7 +72,6 @@ forester(left_side_data = table[1:12,1:3],
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
 #> Warning: Removed 3 rows containing missing values (geom_point).
-#> Warning: Removed 3 rows containing missing values (geom_errorbarh).
 ```
 
 ![](man/figures/fewer_rows.png)
@@ -90,7 +86,6 @@ forester(left_side_data = table[,1],
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
 #> Warning: Removed 8 rows containing missing values (geom_point).
-#> Warning: Removed 8 rows containing missing values (geom_errorbarh).
 ```
 
 ![](man/figures/fewer_cols.png)
@@ -119,7 +114,6 @@ forester(left_side_data = table[,1:3],
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
 #> Warning: Removed 8 rows containing missing values (geom_point).
-#> Warning: Removed 8 rows containing missing values (geom_errorbarh).
 ```
 
 ![](man/figures/forester_plot_fira.png) Adjusting table properties with
@@ -136,7 +130,6 @@ forester(left_side_data = table[1:12,1:3],
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
 #> Warning: Removed 3 rows containing missing values (geom_point).
-#> Warning: Removed 3 rows containing missing values (geom_errorbarh).
 ```
 
 ![](man/figures/fewer_rows_fira.png)
@@ -154,7 +147,6 @@ forester(left_side_data = table[1:12,1:3],
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
 #> Warning: Removed 3 rows containing missing values (geom_point).
-#> Warning: Removed 3 rows containing missing values (geom_errorbarh).
 ```
 
 ![](man/figures/fewer_rows_times.png)
@@ -169,16 +161,14 @@ forester(left_side_data = table[,1:3],
            display = FALSE,
            file_path = here::here("man/figures/forester_plot_arrows.png"),
            font_family = "Fira Sans",
-           xlim = c(-100, 25),
-           xbreaks = c(-100, -75, -50, -25, 0, 25),
+           null_line_at = -50,
+           xlim = c(-100, -25),
+           xbreaks = c(-100, -75, -50, -25),
            arrows = TRUE, 
            arrow_labels = c("Inclisiran Better", "Placebo Better"))
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
-#> Scale for 'x' is already present. Adding another scale for 'x', which will
-#> replace the existing scale.
 #> Warning: Removed 8 rows containing missing values (geom_point).
-#> Warning: Removed 8 rows containing missing values (geom_errorbarh).
 ```
 
 ![](man/figures/forester_plot_arrows.png)
@@ -194,6 +184,7 @@ of the plot (units are relative to the width of the table).
 ``` r
 library(ggplot2)
 library(tibble)
+#> Warning: package 'tibble' was built under R version 4.0.4
 
 ex_plot <- ggplot(tibble(x = rep(1:7, each = 15), y = rep(0:14, times = 7)), aes(x = x, y = y)) +
   geom_point()
@@ -209,7 +200,6 @@ forester(left_side_data = table[1:15,1:3],
 #> Scale for 'x' is already present. Adding another scale for 'x', which will
 #> replace the existing scale.
 #> Warning: Removed 4 rows containing missing values (geom_point).
-#> Warning: Removed 4 rows containing missing values (geom_errorbarh).
 ```
 
 ![](man/figures/add_dots.png)
