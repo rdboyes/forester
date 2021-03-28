@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# forester
+# Forester
 
 <!-- badges: start -->
 <!-- badges: end -->
@@ -19,7 +19,7 @@ from this github repo.
 devtools::install_github("rdboyes/forester")
 ```
 
-## Example
+## Basic Usage
 
 Suppose we wish to replicate the following figure published in the NEJM
 \[1\]:
@@ -51,14 +51,11 @@ forester(left_side_data = table[,1:3],
            display = FALSE,
            xlim = c(-100, 25),
            file_path = here::here("man/figures/forester_plot.png"))
-#> Scale for 'x' is already present. Adding another scale for 'x', which will
-#> replace the existing scale.
-#> Warning: Removed 8 rows containing missing values (geom_point).
 ```
 
 ![](man/figures/forester_plot.png)
 
-forester handles the alignment of the graph and the table automatically,
+Forester handles the alignment of the graph and the table automatically,
 so figures with fewer rows or columns should work by simply passing a
 smaller data frame to the function:
 
@@ -69,9 +66,6 @@ forester(left_side_data = table[1:12,1:3],
            ci_high = table$`CI high`[1:12],
            display = FALSE,
            file_path = here::here("man/figures/fewer_rows.png"))
-#> Scale for 'x' is already present. Adding another scale for 'x', which will
-#> replace the existing scale.
-#> Warning: Removed 3 rows containing missing values (geom_point).
 ```
 
 ![](man/figures/fewer_rows.png)
@@ -83,19 +77,26 @@ forester(left_side_data = table[,1],
            ci_high = table$`CI high`,
            display = FALSE,
            file_path = here::here("man/figures/fewer_cols.png"))
-#> Scale for 'x' is already present. Adding another scale for 'x', which will
-#> replace the existing scale.
-#> Warning: Removed 8 rows containing missing values (geom_point).
 ```
 
 ![](man/figures/fewer_cols.png)
 
-## Additional Fonts
+## Display Options
 
-While Courier has a certain appeal, you might want to give your tables a
-more modern look. However, due to the difficulty of aligning all
-elements when using them, the use of non-monospaced fonts should be
-considered experimental at this stage.
+By default, forester will both display the plot in the RStudio viewer
+(`display = TRUE`) and save a high quality version to the current
+directory (`file_path = here::here("forester_plot.png")`) at a
+resolution controllable by `dpi`. When making a rmarkdown document (such
+as this one), these options should be overwritten as required. You can
+display the images created by forester using standard RMarkdown syntax
+(i.e. `![](path)`).
+
+## Font Families
+
+Pass any font to `font_family` to control the output font. Tested
+options include `"mono"`, `"sans"`, and `"serif"`. Any font will work,
+but alignment may not be perfect for untested fonts. Use the provided
+options `nudge_x` and `nudge_y` to correct alignment issues.
 
 ``` r
 library(extrafont)
@@ -111,47 +112,103 @@ forester(left_side_data = table[,1:3],
            display = FALSE,
            file_path = here::here("man/figures/forester_plot_fira.png"),
            font_family = "Fira Sans")
-#> Scale for 'x' is already present. Adding another scale for 'x', which will
-#> replace the existing scale.
-#> Warning: Removed 8 rows containing missing values (geom_point).
 ```
 
-![](man/figures/forester_plot_fira.png) Adjusting table properties with
-different fonts will still work:
+![](man/figures/forester_plot_fira.png)
+
+## Right Side Data
+
+The option `estimate_precision` can be used to change the number of
+decimals displayed in the right hand side table. `estimate_col_name`
+allows you to change the name of the default right side column. If you
+require more control, pass a dataframe to `right_side_data` to override
+the right side completely.
 
 ``` r
-forester(left_side_data = table[1:12,1:3],
-           estimate = table$Estimate[1:12],
-           ci_low = table$`CI low`[1:12],
-           ci_high = table$`CI high`[1:12],
+forester(left_side_data = table[,1],
+           estimate = table$Estimate,
+           ci_low = table$`CI low`,
+           ci_high = table$`CI high`,
            display = FALSE,
+           estimate_precision = 3,
+           estimate_col_name = "Estimate (95% CI)",
+           file_path = here::here("man/figures/more_precise.png"))
+```
+
+![](man/figures/more_precise.png)
+
+## Plot Width
+
+Change `ggplot_width` from its default value of 30 to adjust the
+relative amount of space that the figure takes up. `nudge_x` can be used
+to correct alignment issues if this option causes any.
+
+``` r
+forester(left_side_data = table[,1],
+           estimate = table$Estimate,
+           ci_low = table$`CI low`,
+           ci_high = table$`CI high`,
+           display = FALSE,
+           ggplot_width = 40,
+           nudge_x = .5,
+           file_path = here::here("man/figures/more_plot_width.png"))
+```
+
+![](man/figures/more_plot_width.png)
+
+## Limits, Breaks, and the Null Line
+
+Limits and breaks are set automatically, but the defaults can be
+overwritten using `xlim` (use a vector of length 2, i.e. c(low, high))
+and `xbreaks` (use a vector indicating the breaks). `null_line_at`
+defaults to 0, but can be set to any value. This would be most commonly
+used to set the `null_line_at = 1.0` for relative measures.
+`x_scale_linear` defaults to `TRUE` but can be set to `FALSE` if a
+logarithmic scale is required. If a confidence interval extends outside
+the range set by `xlim`, it will automatically be indicated using an
+arrow.
+
+``` r
+forester(left_side_data = table[,1:3],
+           estimate = table$Estimate,
+           ci_low = table$`CI low`,
+           ci_high = table$`CI high`,
+           display = FALSE,
+           file_path = here::here("man/figures/limit_breaks.png"),
            font_family = "Fira Sans",
-           file_path = here::here("man/figures/fewer_rows_fira.png"))
-#> Scale for 'x' is already present. Adding another scale for 'x', which will
-#> replace the existing scale.
-#> Warning: Removed 3 rows containing missing values (geom_point).
+           null_line_at = -50,
+           xlim = c(-100, -25),
+           xbreaks = c(-100, -75, -50, -25))
 ```
 
-![](man/figures/fewer_rows_fira.png)
+![](man/figures/limit_breaks.png)
+
+## Table Colour Options
+
+As pointed out
+[here](https://twitter.com/davidrfeinberg/status/1375417579095924738),
+the default colour scheme looks a bit retro. Personally, I like the
+default stripe colour “\#eff3f2”, but you can change the stripe colour
+to anything you want :)
 
 ``` r
-windowsFonts("Times New Roman" = windowsFont("Times New Roman"))
-
-forester(left_side_data = table[1:12,1:3],
-           estimate = table$Estimate[1:12],
-           ci_low = table$`CI low`[1:12],
-           ci_high = table$`CI high`[1:12],
+forester(left_side_data = table[,1:3],
+           estimate = table$Estimate,
+           ci_low = table$`CI low`,
+           ci_high = table$`CI high`,
            display = FALSE,
-           font_family = "Times New Roman",
-           file_path = here::here("man/figures/fewer_rows_times.png"))
-#> Scale for 'x' is already present. Adding another scale for 'x', which will
-#> replace the existing scale.
-#> Warning: Removed 3 rows containing missing values (geom_point).
+           file_path = here::here("man/figures/stripe_colour.png"),
+           font_family = "Fira Sans",
+           stripe_colour = "#ff0000"
+           )
 ```
 
-![](man/figures/fewer_rows_times.png)
+![](man/figures/stripe_colour.png)
 
-## Adding Arrows (Experimental)
+## Adding Arrows
+
+Arrows can be added below the plot area (with `arrows = TRUE`) and
+labelled (with `arrow_labels = c("Left Label", "Right Label")`).
 
 ``` r
 forester(left_side_data = table[,1:3],
@@ -161,19 +218,48 @@ forester(left_side_data = table[,1:3],
            display = FALSE,
            file_path = here::here("man/figures/forester_plot_arrows.png"),
            font_family = "Fira Sans",
-           null_line_at = -50,
-           xlim = c(-100, -25),
-           xbreaks = c(-100, -75, -50, -25),
+           null_line_at = 0,
+           xlim = c(-100, 25),
+           xbreaks = c(-100, -75, -50, -25, 0, 25),
            arrows = TRUE, 
            arrow_labels = c("Inclisiran Better", "Placebo Better"))
-#> Scale for 'x' is already present. Adding another scale for 'x', which will
-#> replace the existing scale.
-#> Warning: Removed 8 rows containing missing values (geom_point).
 ```
 
 ![](man/figures/forester_plot_arrows.png)
 
-## Adding additional ggplot objects (Experimental)
+## Point Size and Shape
+
+The size and shape of the points can be controlled using vectors of
+values passed to `point_sizes` and `point_shapes`.
+
+``` r
+shapes <- rep(16, times = 30)
+
+shapes[1] <- 17
+
+sizes <- rep(3.25, times = 30)
+
+sizes[30] <- 5
+
+forester(left_side_data = table[,1:3],
+           estimate = table$Estimate,
+           ci_low = table$`CI low`,
+           ci_high = table$`CI high`,
+           display = FALSE,
+           file_path = here::here("man/figures/size_shape.png"),
+           font_family = "Fira Sans",
+           null_line_at = 0,
+           xlim = c(-100, 25),
+           xbreaks = c(-100, -75, -50, -25, 0, 25),
+           arrows = TRUE, 
+           arrow_labels = c("Inclisiran Better", "Placebo Better"),
+           point_sizes = sizes,
+           point_shapes = shapes)
+```
+
+![](man/figures/size_shape.png)
+
+## Adding Additional ggplot Objects
 
 Custom ggplot objects can be passed to the `forester` function using the
 parameter `add_plot`. To align the plot with the rows of the table, the
@@ -194,12 +280,8 @@ forester(left_side_data = table[1:15,1:3],
            ci_low = table$`CI low`[1:15],
            ci_high = table$`CI high`[1:15],
            display = FALSE,
-           font_family = "Times New Roman",
            add_plot = ex_plot,
            file_path = here::here("man/figures/add_dots.png"))
-#> Scale for 'x' is already present. Adding another scale for 'x', which will
-#> replace the existing scale.
-#> Warning: Removed 4 rows containing missing values (geom_point).
 ```
 
 ![](man/figures/add_dots.png)

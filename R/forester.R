@@ -63,10 +63,7 @@ forester <- function(left_side_data,
                     add_plot_width = 1,
                     add_plot_gap = FALSE,
                     point_sizes = 3,
-                    point_shapes = 16
-
-
-                    ){
+                    point_shapes = 16){
 
   theme <- gridExtra::ttheme_minimal(core=list(
     fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
@@ -259,7 +256,7 @@ forester <- function(left_side_data,
   ########## the main figure - this will be overlaid on the table ##############
 
   center <- ggplot2::ggplot() +
-    ggplot2::geom_point(data = gdata, ggplot2::aes(y = row_num, x = estimate, size = sizes, shape = shape)) +
+    ggplot2::geom_point(data = gdata, ggplot2::aes(y = row_num, x = estimate, size = sizes, shape = shape), na.rm = TRUE) +
     ggplot2::geom_errorbarh(data = gdata, ggplot2::aes(y = row_num,
           xmin = ci_low,
           xmax = ci_high),
@@ -279,7 +276,6 @@ forester <- function(left_side_data,
           legend.background = ggplot2::element_rect(fill = "transparent"),
           legend.box.background = ggplot2::element_rect(fill = "transparent")) +
     ggplot2::geom_vline(xintercept = null_line_at, linetype = "dashed") +
-    ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1)) +
     ggplot2::scale_y_continuous(expand = c(0,0)) +
     ggplot2::scale_shape_identity() +
     ggplot2::scale_size_identity() +
