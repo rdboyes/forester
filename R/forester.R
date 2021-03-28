@@ -29,7 +29,7 @@
 #' @param add_plot_gap Logical. Should there be space added between the plot and the main figure? Default FALSE.
 #' @param point_sizes Vector. Length should be equal to 1 or nrow(left_side_data). The sizes of the points in the center plot, where 3.25 is the default.
 #' @param point_shapes Vector. Length should be equal to 1 or nrow(left_side_data). The shapes of the points in the center plot, where 16 (a filled circle) is the default.
-#'
+#' @param center_ggplot A ggplot object to use instead of the central plot.
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -63,7 +63,8 @@ forester <- function(left_side_data,
                     add_plot_width = 1,
                     add_plot_gap = FALSE,
                     point_sizes = 3,
-                    point_shapes = 16){
+                    point_shapes = 16,
+                    center_ggplot = NULL){
 
   theme <- gridExtra::ttheme_minimal(core=list(
     fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
@@ -324,6 +325,10 @@ forester <- function(left_side_data,
                                             expand = c(0,0))
     }
   }
+
+  #### allow overwrite of central plot #######################
+
+  if(!is.null(center_ggplot)){center <- center_ggplot}
 
   ######################## Arrows ##############################
   if(arrows == TRUE){
