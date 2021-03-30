@@ -286,6 +286,30 @@ forester(left_side_data = table[1:15,1:3],
 
 ![](man/figures/add_dots.png)
 
+## Citation Information
+
+If you’d like to cite forester, please use:
+
+``` r
+citation("forester")
+#> 
+#> To cite forester in publications use:
+#> 
+#>   Boyes, Randy (2021). Forester: An R package for creating
+#>   publication-ready forest plots. R package version 0.3.0. Available
+#>   at: https://github.com/rdboyes/forester
+#> 
+#> A BibTeX entry for LaTeX users is
+#> 
+#>   @Manual{,
+#>     title = {Forester: An R package for creating publication-ready forest plots.},
+#>     author = {Randy Boyes},
+#>     year = {2021},
+#>     note = {R package version 0.3.0},
+#>     url = {https://github.com/rdboyes/forester},
+#>   }
+```
+
 ## References
 
 1.  Ray, K. K., Wright, R. S., Kallend, D., Koenig, W., Leiter, L. A.,
