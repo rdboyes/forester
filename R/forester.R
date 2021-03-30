@@ -55,7 +55,7 @@ forester <- function(left_side_data,
                     x_scale_linear = TRUE,
                     xlim = NULL,
                     xbreaks = NULL,
-                    nudge_y = NULL,
+                    nudge_y = 0,
                     nudge_x = 1,
                     arrows = FALSE,
                     arrow_labels = c("Lower", "Higher"),
@@ -205,19 +205,27 @@ forester <- function(left_side_data,
 
   gdata$row_num <- (nrow(gdata) - 1):0
 
-  if(is.null(nudge_y)){
-    h_adj <- dplyr::case_when(
-      font_family == "mono" ~ 0,
-      font_family == "Fira Sans" ~ .2,
-      font_family == "serif" ~ .2,
-      font_family == "sans" ~ .2,
-      TRUE ~ 0.3
-    )
-  }else{
-    h_adj <- 0.3 + nudge_y
-  }
 
-  y_low <- -.5 - .1381 * log(nrow(gdata)) + h_adj
+  h_adj <- dplyr::case_when(
+    font_family == "mono" ~ 0.2,
+    font_family == "serif" ~ .43,
+    font_family == "sans" ~ .37,
+    TRUE ~ 0
+  )
+
+  h_adj <- nudge_y + h_adj
+
+
+  slope_adj <- dplyr::case_when(
+    font_family == "mono" ~ -0.175,
+    font_family == "serif" ~ -.19,
+    font_family == "sans" ~ -.16,
+    TRUE ~ 0
+  )
+
+  font_adj <- 0.3 + h_adj + log(nrow(gdata)) * slope_adj
+
+  y_low <- -.5 + font_adj + -.1381 * log(nrow(gdata))
   y_high <- 1.017 * nrow(gdata) - 0.6
 
   #### add shapes and sizes to gdata ########

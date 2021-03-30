@@ -110,6 +110,7 @@ forester(left_side_data = table[,1:3],
            ci_low = table$`CI low`,
            ci_high = table$`CI high`,
            display = FALSE,
+           nudge_y = -.3,
            file_path = here::here("man/figures/forester_plot_fira.png"),
            font_family = "Fira Sans")
 ```
@@ -175,7 +176,7 @@ forester(left_side_data = table[,1:3],
            ci_high = table$`CI high`,
            display = FALSE,
            file_path = here::here("man/figures/limit_breaks.png"),
-           font_family = "Fira Sans",
+           font_family = "sans",
            null_line_at = -50,
            xlim = c(-100, -25),
            xbreaks = c(-100, -75, -50, -25))
@@ -198,7 +199,7 @@ forester(left_side_data = table[,1:3],
            ci_high = table$`CI high`,
            display = FALSE,
            file_path = here::here("man/figures/stripe_colour.png"),
-           font_family = "Fira Sans",
+           font_family = "sans",
            stripe_colour = "#ff0000"
            )
 ```
@@ -217,7 +218,7 @@ forester(left_side_data = table[,1:3],
            ci_high = table$`CI high`,
            display = FALSE,
            file_path = here::here("man/figures/forester_plot_arrows.png"),
-           font_family = "Fira Sans",
+           font_family = "sans",
            null_line_at = 0,
            xlim = c(-100, 25),
            xbreaks = c(-100, -75, -50, -25, 0, 25),
@@ -247,7 +248,7 @@ forester(left_side_data = table[,1:3],
            ci_high = table$`CI high`,
            display = FALSE,
            file_path = here::here("man/figures/size_shape.png"),
-           font_family = "Fira Sans",
+           font_family = "sans",
            null_line_at = 0,
            xlim = c(-100, 25),
            xbreaks = c(-100, -75, -50, -25, 0, 25),
@@ -270,7 +271,6 @@ of the plot (units are relative to the width of the table).
 ``` r
 library(ggplot2)
 library(tibble)
-#> Warning: package 'tibble' was built under R version 4.0.4
 
 ex_plot <- ggplot(tibble(x = rep(1:7, each = 15), y = rep(0:14, times = 7)), aes(x = x, y = y)) +
   geom_point()

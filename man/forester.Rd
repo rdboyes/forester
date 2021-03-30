@@ -24,12 +24,15 @@ forester(
   xlim = NULL,
   xbreaks = NULL,
   nudge_y = NULL,
+  nudge_x = 1,
   arrows = FALSE,
   arrow_labels = c("Lower", "Higher"),
   add_plot = NULL,
   add_plot_width = 1,
   add_plot_gap = FALSE,
-  width_nudge = 1
+  point_sizes = 3,
+  point_shapes = 16,
+  center_ggplot = NULL
 )
 }
 \arguments{
@@ -71,6 +74,8 @@ forester(
 
 \item{nudge_y}{Numeric. Allows small changes to the vertical alignment of the forest plot points. 1 unit is approximately the height of 1 row.}
 
+\item{nudge_x}{Numeric. Nudge the alignment horizontally. Default 1. Higher values make the entire plot wider and consequently space out the elements of the figure.}
+
 \item{arrows}{Logical. Should there be arrows displayed below the ggplot? Default FALSE. Specify xlim if using arrows.}
 
 \item{arrow_labels}{String Vector, length 2. Labels for the arrows. Set arrows to TRUE or this will have no effect.}
@@ -81,7 +86,11 @@ forester(
 
 \item{add_plot_gap}{Logical. Should there be space added between the plot and the main figure? Default FALSE.}
 
-\item{width_nudge}{Numeric. Nudge the alignment horizontally. Default 1. It's difficult to explain exactly how to use this - trial and error is recommended.}
+\item{point_sizes}{Vector. Length should be equal to 1 or nrow(left_side_data). The sizes of the points in the center plot, where 3.25 is the default.}
+
+\item{point_shapes}{Vector. Length should be equal to 1 or nrow(left_side_data). The shapes of the points in the center plot, where 16 (a filled circle) is the default.}
+
+\item{center_ggplot}{A ggplot object to use instead of the central plot.}
 }
 \value{
 image
