@@ -1,0 +1,97 @@
+---
+title: "alignment_tests"
+author: "Randy Boyes"
+date: "30/03/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The following document exists mainly to check whether alignment works for the supported fonts.
+
+```{r example}
+library(forester)
+library(tidyverse)
+
+table <- readxl::read_excel(here::here("inst/extdata/example_figure_data.xlsx"))
+
+# indent the subgroup if there is a number in the placebo column
+table$Subgroup <- ifelse(is.na(table$Placebo), 
+                         table$Subgroup,
+                         paste0("   ", table$Subgroup))
+
+# remove indent of the first row
+table$Subgroup[1] <- "All Patients"
+
+# use forester to create the table with forest plot
+
+test_forester <- function(num_rows, font, adj){
+  forester(left_side_data = table[1:num_rows,1:3],
+           estimate = table$Estimate[1:num_rows],
+           ci_low = table$`CI low`[1:num_rows],
+           ci_high = table$`CI high`[1:num_rows],
+           display = FALSE,
+           xlim = c(-100, 25),
+           dpi = 300,
+           nudge_y = adj,
+           font_family = font, 
+           file_path = here::here(paste0("vignettes/", font, "_", num_rows,".png")))
+}
+```
+
+
+```{r, echo = FALSE}
+nrl <- as.list(rep(c(5, 10, 15, 20, 25, 30), times = 3))
+fl <- as.list(rep(c("mono", "sans", "serif"), each = 6))
+adj <- as.list(rep(0, times = 18))
+  
+# adj[1] <- -0.1
+# adj[2] <- -0.19
+# adj[3] <- -0.25
+# adj[4] <- -0.33
+# adj[5] <- -0.38
+# adj[6] <- -0.4
+# 
+# 
+# adj[7] <- 0.1
+# adj[8] <- 0
+# adj[9] <- -0.05
+# adj[10] <- -0.1
+# adj[11] <- -.15
+# adj[12] <- -.2
+# 
+# adj[13] <- 0.1
+# adj[14] <- 0
+# adj[15] <- -0.05
+# adj[16] <- -0.12
+# adj[17] <- -.19
+# adj[18] <- -.25
+  
+  
+arg <- list(nrl, fl, adj)
+
+purrr::pmap(arg, test_forester)
+```
+![](mono_5.png)
+![](mono_10.png)
+![](mono_15.png)
+![](mono_20.png)
+![](mono_25.png)
+![](mono_30.png)
+![](sans_5.png)
+
+![](sans_10.png)
+![](sans_15.png)
+![](sans_20.png)
+![](sans_25.png)
+![](sans_30.png)
+
+![](serif_5.png)
+
+![](serif_10.png)
+![](serif_15.png)
+![](serif_20.png)
+![](serif_25.png)
+![](serif_30.png)
