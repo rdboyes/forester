@@ -48,10 +48,10 @@ forester <- function(left_side_data,
                     file_path = here::here("forester_plot.png"),
                     dpi = 600,
                     display = TRUE,
-                    blank_na = TRUE,
                     font_family = "mono",
                     estimate_col_name = "Estimate",
                     stripe_colour = "#eff3f2",
+                    background_colour = "white",
                     x_scale_linear = TRUE,
                     xlim = NULL,
                     xbreaks = NULL,
@@ -64,20 +64,37 @@ forester <- function(left_side_data,
                     add_plot_gap = FALSE,
                     point_sizes = 3,
                     point_shapes = 16,
-                    center_ggplot = NULL){
+                    center_ggplot = NULL,
+                    lower_header_row = FALSE){
 
-  theme <- gridExtra::ttheme_minimal(core=list(
-    fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
-    bg_params = list(fill=c(rep(c(stripe_colour, "white"), length.out=nrow(left_side_data)), "white", "white", "white"))
-  ),
-    colhead = list(fg_params = list(hjust = 0, x = 0.05,
+  if(lower_header_row == FALSE){
+    theme <- gridExtra::ttheme_minimal(core=list(
+      fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
+      bg_params = list(fill=c(rep(c(stripe_colour, background_colour), length.out=nrow(left_side_data)), background_colour, background_colour, background_colour))
+    ),
+      colhead = list(fg_params = list(hjust = 0, x = 0.05,
                                     fontfamily = font_family),
-                   bg_params = list(fill = "white"))
-  )
+                   bg_params = list(fill = background_colour))
+    )
+  }else{
+    theme <- gridExtra::ttheme_minimal(core=list(
+      fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
+      bg_params = list(fill=c(rep(c(background_colour, stripe_colour), length.out=nrow(left_side_data)), background_colour, background_colour, background_colour))
+    ),
+    colhead = list(fg_params = list(hjust = 0, x = 0.05,
+                                    fontfamily = font_family,
+                                    fill = background_colour),
+                   bg_params = list(fill = background_colour))
+    )
+  }
 
   gdata <- data.frame(estimate = estimate,
                     ci_low = ci_low,
                     ci_high = ci_high)
+
+  if(lower_header_row){
+    gdata <- add_row(gdata, .before = 1)
+  }
 
   if(is.null(right_side_data)){
     tdata <- gdata
@@ -155,6 +172,9 @@ forester <- function(left_side_data,
   total_width <- left_width + right_width + ggplot_width
 
   tdata_print <- left_side_data
+
+  if(lower_header_row){rbind.data.frame(colnames(tdata_print), tdata_print)}
+
   tdata_print$` ` <- paste(rep(" ", times = round(ggplot_width, 0)),
                            collapse = '')
   tdata_print <- cbind(tdata_print, right_side_data)
@@ -163,10 +183,10 @@ forester <- function(left_side_data,
   tdata_print <- tibble::add_row(tdata_print)
   tdata_print <- tibble::add_row(tdata_print)
 
-  if(blank_na == TRUE){
-    tdata_print <- dplyr::mutate_all(tdata_print, as.character)
-    tdata_print[is.na(tdata_print)] <- " "
-  }
+  tdata_print <- dplyr::mutate_all(tdata_print, as.character)
+  tdata_print[is.na(tdata_print)] <- " "
+
+  ## formatting functions
 
   mono_column <- function(table, col){
     col_indexes <- function(table, col, name="core-fg"){
@@ -192,7 +212,7 @@ forester <- function(left_side_data,
     ind_fg <- col_indexes(table, col, "core-fg")
 
     for(i in ind){
-      table$grobs[i][[1]][["gp"]] <- grid::gpar(fill = "white", col = "white")
+      table$grobs[i][[1]][["gp"]] <- grid::gpar(fill = background_colour, col = background_colour)
     }
 
     for(i in ind_fg){
