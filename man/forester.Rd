@@ -16,14 +16,14 @@ forester(
   file_path = here::here("forester_plot.png"),
   dpi = 600,
   display = TRUE,
-  blank_na = TRUE,
   font_family = "mono",
   estimate_col_name = "Estimate",
   stripe_colour = "#eff3f2",
+  background_colour = "white",
   x_scale_linear = TRUE,
   xlim = NULL,
   xbreaks = NULL,
-  nudge_y = NULL,
+  nudge_y = 0,
   nudge_x = 1,
   arrows = FALSE,
   arrow_labels = c("Lower", "Higher"),
@@ -32,7 +32,9 @@ forester(
   add_plot_gap = FALSE,
   point_sizes = 3,
   point_shapes = 16,
-  center_ggplot = NULL
+  center_ggplot = NULL,
+  lower_header_row = FALSE,
+  render_as = "image"
 )
 }
 \arguments{
@@ -57,8 +59,6 @@ forester(
 \item{dpi}{Numeric. The image resolution in dpi, default 600}
 
 \item{display}{Logical. Show the table in RStudio viewer? Default TRUE. If you're using forester inside of RMarkdown, change to false and display the generated images using standard markdown syntax (See file_path).}
-
-\item{blank_na}{Logical. Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown}
 
 \item{font_family}{String. The font to use for the ggplot and table. Default "mono".}
 
@@ -91,6 +91,10 @@ forester(
 \item{point_shapes}{Vector. Length should be equal to 1 or nrow(left_side_data). The shapes of the points in the center plot, where 16 (a filled circle) is the default.}
 
 \item{center_ggplot}{A ggplot object to use instead of the central plot.}
+
+\item{render_as}{What output format should be used? Default is "image", the only other option currently is "rmarkdown".}
+
+\item{blank_na}{Logical. Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown}
 }
 \value{
 image
