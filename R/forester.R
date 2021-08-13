@@ -30,6 +30,7 @@
 #' @param point_sizes Vector. Length should be equal to 1 or nrow(left_side_data). The sizes of the points in the center plot, where 3.25 is the default.
 #' @param point_shapes Vector. Length should be equal to 1 or nrow(left_side_data). The shapes of the points in the center plot, where 16 (a filled circle) is the default.
 #' @param center_ggplot A ggplot object to use instead of the central plot.
+#' @param render_as What output format should be used? Default is "image", the only other option currently is "rmarkdown".
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -65,7 +66,8 @@ forester <- function(left_side_data,
                     point_sizes = 3,
                     point_shapes = 16,
                     center_ggplot = NULL,
-                    lower_header_row = FALSE){
+                    lower_header_row = FALSE,
+                    render_as = "image"){
 
   if(lower_header_row == FALSE){
     theme <- gridExtra::ttheme_minimal(core=list(
@@ -523,17 +525,20 @@ forester <- function(left_side_data,
   }
 
   ######### save the plot as a png, then display it with magick ################
-
-  ggplot2::ggsave(dpi = dpi,
+  if(render_as == "image"){
+    ggplot2::ggsave(dpi = dpi,
          height = png_height,
          width = png_width, units = "in",
          filename = file_path)
 
-  if(display == TRUE){
-    magick::image_resize(magick::image_read(file_path),
+    if(display == TRUE){
+      magick::image_resize(magick::image_read(file_path),
                          paste0(grDevices::dev.size("px")[1],
                                 "x",
                                 grDevices::dev.size("px")[2]))
+    }
+  }else{
+    final
   }
 }
 
