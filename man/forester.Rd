@@ -9,11 +9,12 @@ forester(
   estimate,
   ci_low,
   ci_high,
+  ci_sep = " to ",
   right_side_data = NULL,
   estimate_precision = 1,
   ggplot_width = 30,
   null_line_at = 0,
-  file_path = here::here("forester_plot.png"),
+  file_path = file.path(tempdir(), paste0("forester_plot.", render_as)),
   dpi = 600,
   display = TRUE,
   font_family = "mono",
@@ -34,7 +35,7 @@ forester(
   point_shapes = 16,
   center_ggplot = NULL,
   lower_header_row = FALSE,
-  render_as = "image"
+  render_as = "png"
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ forester(
 
 \item{ci_high}{Vector. The upper confidence bounds.}
 
+\item{ci_sep}{String. What should separate the low and high confidence bounds? Default " to ".}
+
 \item{right_side_data}{Data frame (optional). Information to be displayed on the right side of the table. If not supplied, an Estimate column is generated automatically.}
 
 \item{estimate_precision}{Integer. The number of decimal places on the estimate (default 1)}
@@ -54,19 +57,21 @@ forester(
 
 \item{null_line_at}{Numeric. Default 0. Change to 1 if using relative measures such as OR, RR.}
 
-\item{file_path}{String. Where to save the image, default "forestable_plot.png" in the current working directory.}
+\item{file_path}{String. Where to save the image, default file.path(tempdir(), "forester_plot.png").}
 
 \item{dpi}{Numeric. The image resolution in dpi, default 600}
 
-\item{display}{Logical. Show the table in RStudio viewer? Default TRUE. If you're using forester inside of RMarkdown, change to false and display the generated images using standard markdown syntax (See file_path).}
+\item{display}{Logical. Should the file be opened? Default TRUE.}
 
 \item{font_family}{String. The font to use for the ggplot and table. Default "mono".}
 
 \item{estimate_col_name}{String. The name for the generated estimate column. Default "Estimate"}
 
-\item{stripe_colour}{Hex String. Colour to use for the table stripes, default "#eff3f2"}
+\item{stripe_colour}{Hex String. Colour to use for the table stripes, default "#eff3f2".}
 
-\item{x_scale_linear}{Logical. Default TRUE, change to FALSE for log scale}
+\item{background_colour}{Hex String or Colour Name. The colour of the background, default "white".}
+
+\item{x_scale_linear}{Logical. Default TRUE, change to FALSE for a log scale.}
 
 \item{xlim}{Vector. Manually specify limits for the x axis as a vector length 2, i.e. c(low, high)}
 
@@ -92,13 +97,16 @@ forester(
 
 \item{center_ggplot}{A ggplot object to use instead of the central plot.}
 
-\item{render_as}{What output format should be used? Default is "image", the only other option currently is "rmarkdown".}
+\item{lower_header_row}{Logical. If TRUE, drops the header down one row (In the table rather than above it, like the default value (FALSE))}
 
-\item{blank_na}{Logical. Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown}
+\item{render_as}{String or Function. What output format should be used? Option is passed to ggplot2::ggsave() as the argument "device". Either pass a device function (e.g. png) or one of "eps", "ps", "tex" (pictex), "pdf", "jpeg", "tiff", "png", "bmp", "svg" or "wmf" (windows only).}
 }
 \value{
 image
 }
 \description{
 Creates an png image with the forest plot column inserted in the supplied data frame.
+}
+\examples{
+
 }

@@ -1,27 +1,30 @@
 #' Create a forest plot column in a table
 #'
-#' Creates an png image with the forest plot column inserted in the supplied data frame.
+#' Creates a forest plot overlaid on a table.
 #'
 #' @param left_side_data Data frame (required). The information to be displayed to the left of the forest plot.
 #' @param estimate Vector. The point estimates to be displayed in the forest plot.
 #' @param ci_low Vector. The lower confidence bounds.
 #' @param ci_high Vector. The upper confidence bounds.
+#' @param ci_sep String. What should separate the low and high confidence bounds? Default " to ".
 #' @param right_side_data Data frame (optional). Information to be displayed on the right side of the table. If not supplied, an Estimate column is generated automatically.
 #' @param estimate_precision Integer. The number of decimal places on the estimate (default 1)
 #' @param ggplot_width Integer. The width of forest plot in characters (default 30)
 #' @param null_line_at Numeric. Default 0. Change to 1 if using relative measures such as OR, RR.
-#' @param file_path String. Where to save the image, default "forestable_plot.png" in the current working directory.
+#' @param file_path String. Where to save the image, default file.path(tempdir(), "forester_plot.png").
 #' @param dpi Numeric. The image resolution in dpi, default 600
-#' @param display Logical. Show the table in RStudio viewer? Default TRUE. If you're using forester inside of RMarkdown, change to false and display the generated images using standard markdown syntax (See file_path).
-#' @param blank_na Logical. Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown
+#' @param display Logical. Should the file be opened? Default TRUE.
 #' @param font_family String. The font to use for the ggplot and table. Default "mono".
 #' @param estimate_col_name String. The name for the generated estimate column. Default "Estimate"
-#' @param stripe_colour Hex String. Colour to use for the table stripes, default "#eff3f2"
-#' @param x_scale_linear Logical. Default TRUE, change to FALSE for log scale
+#' @param stripe_colour Hex String. Colour to use for the table stripes, default "#eff3f2".
+#' @param background_colour Hex String or Colour Name. The colour of the background, default "white".
+#' @param x_scale_linear Logical. Default TRUE, change to FALSE for a log scale.
 #' @param xlim Vector. Manually specify limits for the x axis as a vector length 2, i.e. c(low, high)
 #' @param xbreaks Vector. X axis breaks to label. Specify limits in xlim if using this option.
 #' @param nudge_x Numeric. Nudge the alignment horizontally. Default 1. Higher values make the entire plot wider and consequently space out the elements of the figure.
 #' @param nudge_y Numeric. Allows small changes to the vertical alignment of the forest plot points. 1 unit is approximately the height of 1 row.
+#' @param nudge_height Numeric. Adjust the overall height of the plot output. Default is 0.
+#' @param nudge_width Numeric. Adjust the overall width of the plot output. Default is 0.
 #' @param arrows Logical. Should there be arrows displayed below the ggplot? Default FALSE. Specify xlim if using arrows.
 #' @param arrow_labels String Vector, length 2. Labels for the arrows. Set arrows to TRUE or this will have no effect.
 #' @param add_plot A ggplot object to add to the right side of the table. To align correctly with rows, 1 unit is the height of a row and y = 0 for the center of the bottom row.
@@ -30,7 +33,8 @@
 #' @param point_sizes Vector. Length should be equal to 1 or nrow(left_side_data). The sizes of the points in the center plot, where 3.25 is the default.
 #' @param point_shapes Vector. Length should be equal to 1 or nrow(left_side_data). The shapes of the points in the center plot, where 16 (a filled circle) is the default.
 #' @param center_ggplot A ggplot object to use instead of the central plot.
-#' @param render_as What output format should be used? Default is "image", the only other option currently is "rmarkdown".
+#' @param lower_header_row Logical. If TRUE, drops the header down one row (In the table rather than above it, like the default value (FALSE))
+#' @param render_as String or Function. What output format should be used? Option is passed to ggplot2::ggsave() as the argument "device". Either pass a device function (e.g. png) or one of "eps", "ps", "tex" (pictex), "pdf", "jpeg", "tiff", "png", "bmp", "svg" or "wmf" (windows only).
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -38,15 +42,17 @@
 #' @export
 #'
 #' @examples
+#'
 forester <- function(left_side_data,
                     estimate,
                     ci_low,
                     ci_high,
+                    ci_sep = " to ",
                     right_side_data = NULL,
                     estimate_precision = 1,
                     ggplot_width = 30,
                     null_line_at = 0,
-                    file_path = here::here("forester_plot.png"),
+                    file_path = file.path(tempdir(), paste0("forester_plot.", render_as)),
                     dpi = 600,
                     display = TRUE,
                     font_family = "mono",
@@ -58,6 +64,8 @@ forester <- function(left_side_data,
                     xbreaks = NULL,
                     nudge_y = 0,
                     nudge_x = 1,
+                    nudge_height = 0,
+                    nudge_width = 0,
                     arrows = FALSE,
                     arrow_labels = c("Lower", "Higher"),
                     add_plot = NULL,
@@ -67,7 +75,7 @@ forester <- function(left_side_data,
                     point_shapes = 16,
                     center_ggplot = NULL,
                     lower_header_row = FALSE,
-                    render_as = "image"){
+                    render_as = "png"){
 
   if(lower_header_row == FALSE){
     theme <- gridExtra::ttheme_minimal(core=list(
@@ -95,7 +103,7 @@ forester <- function(left_side_data,
                     ci_high = ci_high)
 
   if(lower_header_row){
-    gdata <- add_row(gdata, .before = 1)
+    gdata <- tibble::add_row(gdata, .before = 1)
   }
 
   if(is.null(right_side_data)){
@@ -109,7 +117,7 @@ forester <- function(left_side_data,
     # pretty formatting for confidence intervals
     right_side_data <- data.frame(Estimate = ifelse(tdata$estimate == " ",
                                   " ", paste0(tdata$estimate, " (", tdata$ci_low,
-                                      " to ", tdata$ci_high, ")")))
+                                      ci_sep, tdata$ci_high, ")")))
 
     colnames(right_side_data) <- estimate_col_name
 
@@ -269,10 +277,10 @@ forester <- function(left_side_data,
     la <- sum(oob_arrows$ci_low < oob_arrows$x_low, na.rm = T) > 0
 
     if(ra){
-      right_arrows <- dplyr::select(dplyr::filter(oob_arrows, ci_high > x_high), start = estimate, end = x_high, y = row_num)
+      right_arrows <- dplyr::select(dplyr::filter(oob_arrows, ci_high > .data$x_high), start = estimate, end = .data$x_high, y = .data$row_num)
     }
     if(la){
-      left_arrows <- dplyr::select(dplyr::filter(oob_arrows, ci_low < x_low), start = estimate, end = x_low, y = row_num)
+      left_arrows <- dplyr::select(dplyr::filter(oob_arrows, ci_low < .data$x_low), start = estimate, end = .data$x_low, y = .data$row_num)
     }
 
     if(ra && !la){
@@ -525,17 +533,18 @@ forester <- function(left_side_data,
   }
 
   ######### save the plot as a png, then display it with magick ################
-  if(render_as == "image"){
-    ggplot2::ggsave(dpi = dpi,
-         height = png_height,
-         width = png_width, units = "in",
-         filename = file_path)
+  if(!(render_as == "rmarkdown")){
+    ggplot2::ggsave(
+         dpi = dpi,
+         height = png_height + nudge_height,
+         width = png_width + nudge_width,
+         units = "in",
+         filename = file_path,
+         device = render_as
+    )
 
     if(display == TRUE){
-      magick::image_resize(magick::image_read(file_path),
-                         paste0(grDevices::dev.size("px")[1],
-                                "x",
-                                grDevices::dev.size("px")[2]))
+      system(paste0('open "', file_path, '"'))
     }
   }else{
     final

@@ -26,7 +26,7 @@ Suppose we wish to replicate the following figure published in the NEJM
 
 ![](man/figures/target_figure.jpg)
 
-forester simply requires the left side of the table (in this case, three
+Forester simply requires the left side of the table (in this case, three
 columns with Subgroups and counts for each of two groups) and vectors
 which contain the point estimates and confidence intervals.
 
@@ -83,13 +83,20 @@ forester(left_side_data = table[,1],
 
 ## Display Options
 
-By default, forester will both display the plot in the RStudio viewer
-(`display = TRUE`) and save a high quality version to the current
-directory (`file_path = here::here("forester_plot.png")`) at a
-resolution controllable by `dpi`. When making a rmarkdown document (such
-as this one), these options should be overwritten as required. You can
-display the images created by forester using standard RMarkdown syntax
-(i.e. `![](path)`).
+Using the default options will result in a png image being written to
+your temporary folder and opened with your default program for viewing
+images. If you don’t want to open the file, specify `display = FALSE`.
+`ggplot2::ggsave` is used to save the file, so any format supported
+there will work in theory (though not necessarily in practice). Use the
+`render_as` option to change the output file format - for example,
+`render_as = "pdf"` will render the plot in pdf form. If you want to
+display the plot inline in an rmarkdown document, use
+`render_as = "rmarkdown` (this feature is still experimental). You can
+alternatively generate the plots as images and then use normal markdown
+syntax to include them in your document (i.e. `![]()`). Be sure to
+change the `file_path` option to save the plot somewhere permanent if
+you are using this option or would otherwise like your plots to be
+saved.
 
 ## Font Families
 
@@ -103,6 +110,7 @@ library(extrafont)
 #> Registering fonts with R
 
 loadfonts(device = "win")
+#> Roboto Condensed already registered with windowsFonts().
 windowsFonts("Fira Sans" = windowsFont("Fira Sans"))
 
 forester(left_side_data = table[,1:3],
@@ -271,6 +279,7 @@ of the plot (units are relative to the width of the table).
 ``` r
 library(ggplot2)
 library(tibble)
+#> Warning: package 'tibble' was built under R version 4.1.1
 
 ex_plot <- ggplot(tibble(x = rep(1:7, each = 15), y = rep(0:14, times = 7)), aes(x = x, y = y)) +
   geom_point()

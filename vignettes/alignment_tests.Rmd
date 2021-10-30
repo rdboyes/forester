@@ -1,8 +1,10 @@
 ---
-title: "alignment_tests"
-author: "Randy Boyes"
-date: "30/03/2021"
-output: html_document
+title: "Alignment Tests"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Alignment_Tests}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
@@ -13,7 +15,7 @@ The following document exists mainly to check whether alignment works for the su
 
 ```{r example}
 library(forester)
-library(tidyverse)
+library(purrr)
 
 table <- readxl::read_excel(here::here("inst/extdata/example_figure_data.xlsx"))
 
