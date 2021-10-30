@@ -100,8 +100,6 @@ forester(
 \item{lower_header_row}{Logical. If TRUE, drops the header down one row (In the table rather than above it, like the default value (FALSE))}
 
 \item{render_as}{String or Function. What output format should be used? Option is passed to ggplot2::ggsave() as the argument "device". Either pass a device function (e.g. png) or one of "eps", "ps", "tex" (pictex), "pdf", "jpeg", "tiff", "png", "bmp", "svg" or "wmf" (windows only).}
-
-\item{blank_na}{Logical. Should missing values in the left side table be displayed as blank? Default TRUE, if FALSE, NA values will be shown}
 }
 \value{
 image

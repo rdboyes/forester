@@ -1,6 +1,6 @@
 #' Create a forest plot column in a table
 #'
-#' Creates an png image with the forest plot column inserted in the supplied data frame.
+#' Creates a forest plot overlaid on a table.
 #'
 #' @param left_side_data Data frame (required). The information to be displayed to the left of the forest plot.
 #' @param estimate Vector. The point estimates to be displayed in the forest plot.
@@ -23,6 +23,8 @@
 #' @param xbreaks Vector. X axis breaks to label. Specify limits in xlim if using this option.
 #' @param nudge_x Numeric. Nudge the alignment horizontally. Default 1. Higher values make the entire plot wider and consequently space out the elements of the figure.
 #' @param nudge_y Numeric. Allows small changes to the vertical alignment of the forest plot points. 1 unit is approximately the height of 1 row.
+#' @param nudge_height Numeric. Adjust the overall height of the plot output. Default is 0.
+#' @param nudge_width Numeric. Adjust the overall width of the plot output. Default is 0.
 #' @param arrows Logical. Should there be arrows displayed below the ggplot? Default FALSE. Specify xlim if using arrows.
 #' @param arrow_labels String Vector, length 2. Labels for the arrows. Set arrows to TRUE or this will have no effect.
 #' @param add_plot A ggplot object to add to the right side of the table. To align correctly with rows, 1 unit is the height of a row and y = 0 for the center of the bottom row.
@@ -62,6 +64,8 @@ forester <- function(left_side_data,
                     xbreaks = NULL,
                     nudge_y = 0,
                     nudge_x = 1,
+                    nudge_height = 0,
+                    nudge_width = 0,
                     arrows = FALSE,
                     arrow_labels = c("Lower", "Higher"),
                     add_plot = NULL,
@@ -532,8 +536,8 @@ forester <- function(left_side_data,
   if(!(render_as == "rmarkdown")){
     ggplot2::ggsave(
          dpi = dpi,
-         height = png_height,
-         width = png_width,
+         height = png_height + nudge_height,
+         width = png_width + nudge_width,
          units = "in",
          filename = file_path,
          device = render_as
