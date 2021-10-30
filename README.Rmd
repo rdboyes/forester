@@ -34,7 +34,7 @@ Suppose we wish to replicate the following figure published in the NEJM [1]:
 
 ![](man/figures/target_figure.jpg)
 
-forester simply requires the left side of the table (in this case, three columns with Subgroups and counts for each of two groups) and vectors which contain the point estimates and confidence intervals. 
+Forester simply requires the left side of the table (in this case, three columns with Subgroups and counts for each of two groups) and vectors which contain the point estimates and confidence intervals. 
 
 ```{r example}
 library(forester)

@@ -26,7 +26,7 @@ Suppose we wish to replicate the following figure published in the NEJM
 
 ![](man/figures/target_figure.jpg)
 
-forester simply requires the left side of the table (in this case, three
+Forester simply requires the left side of the table (in this case, three
 columns with Subgroups and counts for each of two groups) and vectors
 which contain the point estimates and confidence intervals.
 
@@ -103,6 +103,7 @@ library(extrafont)
 #> Registering fonts with R
 
 loadfonts(device = "win")
+#> Roboto Condensed already registered with windowsFonts().
 windowsFonts("Fira Sans" = windowsFont("Fira Sans"))
 
 forester(left_side_data = table[,1:3],
@@ -271,6 +272,7 @@ of the plot (units are relative to the width of the table).
 ``` r
 library(ggplot2)
 library(tibble)
+#> Warning: package 'tibble' was built under R version 4.1.1
 
 ex_plot <- ggplot(tibble(x = rep(1:7, each = 15), y = rep(0:14, times = 7)), aes(x = x, y = y)) +
   geom_point()

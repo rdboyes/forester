@@ -34,5 +34,6 @@ Imports:
     tidyr
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    readxl
 VignetteBuilder: knitr
