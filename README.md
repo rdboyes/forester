@@ -33,7 +33,7 @@ which contain the point estimates and confidence intervals.
 ``` r
 library(forester)
 
-table <- readxl::read_excel(here::here("inst/extdata/example_figure_data.xlsx"))
+table <- readxl::read_excel(system.file("extdata", "example_figure_data.xlsx", package = "forester"))
 
 # indent the subgroup if there is a number in the placebo column
 table$Subgroup <- ifelse(is.na(table$Placebo), 
