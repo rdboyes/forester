@@ -129,6 +129,24 @@ forester(left_side_data = table[,1],
 
 ![](man/figures/more_precise.png)
 
+## Column Justification 
+
+Column justification can be controlled either with a single number (e.g. the default `justify = 0` for all columns left justified) or with a vector of length equal to the number of columns in `left_side_data`, plus one for the estimate column. If the vector form is specified, each number controls the justification of one column. Right justification is `justify = 1`, centering is `justify = 0.5`.  
+
+```{r}
+forester(left_side_data = table[,1:3],
+           estimate = table$Estimate,
+           ci_low = table$`CI low`,
+           ci_high = table$`CI high`,
+           display = FALSE,
+           justify = c(0,1,1,1),
+           estimate_col_name = "Estimate (95% CI)",
+           file_path = here::here("man/figures/right_just.png"))
+```
+
+![](man/figures/right_just.png)
+
+
 ## Plot Width
 
 Change `ggplot_width` from its default value of 30 to adjust the relative amount of space that the figure takes up. `nudge_x` can be used to correct alignment issues if this option causes any.

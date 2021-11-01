@@ -26,6 +26,9 @@ forester(
   xbreaks = NULL,
   nudge_y = 0,
   nudge_x = 1,
+  nudge_height = 0,
+  nudge_width = 0,
+  justify = 0,
   arrows = FALSE,
   arrow_labels = c("Lower", "Higher"),
   add_plot = NULL,
@@ -81,6 +84,12 @@ forester(
 
 \item{nudge_x}{Numeric. Nudge the alignment horizontally. Default 1. Higher values make the entire plot wider and consequently space out the elements of the figure.}
 
+\item{nudge_height}{Numeric. Adjust the overall height of the plot output. Default is 0.}
+
+\item{nudge_width}{Numeric. Adjust the overall width of the plot output. Default is 0.}
+
+\item{justify}{Numeric Vector. This should be a numeric vector either of length 1 (in which case it will apply to all columns) or of length equal to the number of columns in left_side_data + 1 (for the estimate column). Each number in the vector dictates the column justification, with 0 being left, 0.5 being center, and 1 being right.}
+
 \item{arrows}{Logical. Should there be arrows displayed below the ggplot? Default FALSE. Specify xlim if using arrows.}
 
 \item{arrow_labels}{String Vector, length 2. Labels for the arrows. Set arrows to TRUE or this will have no effect.}
@@ -105,7 +114,7 @@ forester(
 image
 }
 \description{
-Creates an png image with the forest plot column inserted in the supplied data frame.
+Creates a forest plot overlaid on a table.
 }
 \examples{
 
