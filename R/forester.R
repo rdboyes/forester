@@ -25,6 +25,7 @@
 #' @param nudge_y Numeric. Allows small changes to the vertical alignment of the forest plot points. 1 unit is approximately the height of 1 row.
 #' @param nudge_height Numeric. Adjust the overall height of the plot output. Default is 0.
 #' @param nudge_width Numeric. Adjust the overall width of the plot output. Default is 0.
+#' @param justify Numeric Vector. This should be a numeric vector either of length 1 (in which case it will apply to all columns) or of length equal to the number of columns in left_side_data + 1 (for the estimate column). Each number in the vector dictates the column justification, with 0 being left, 0.5 being center, and 1 being right.
 #' @param arrows Logical. Should there be arrows displayed below the ggplot? Default FALSE. Specify xlim if using arrows.
 #' @param arrow_labels String Vector, length 2. Labels for the arrows. Set arrows to TRUE or this will have no effect.
 #' @param add_plot A ggplot object to add to the right side of the table. To align correctly with rows, 1 unit is the height of a row and y = 0 for the center of the bottom row.
@@ -66,6 +67,7 @@ forester <- function(left_side_data,
                     nudge_x = 1,
                     nudge_height = 0,
                     nudge_width = 0,
+                    justify = 0,
                     arrows = FALSE,
                     arrow_labels = c("Lower", "Higher"),
                     add_plot = NULL,
@@ -77,9 +79,15 @@ forester <- function(left_side_data,
                     lower_header_row = FALSE,
                     render_as = "png"){
 
+  if(!length(justify) == 1){
+    justify <- c(justify[1:(length(justify) - 1)], 0, justify[length(justify)])
+    justify <- matrix(justify, ncol=length(justify), nrow=nrow(left_side_data) + 3, byrow=TRUE)
+    justify <- as.vector(justify)
+  }
+
   if(lower_header_row == FALSE){
     theme <- gridExtra::ttheme_minimal(core=list(
-      fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
+      fg_params = list(hjust = justify, x = (0.05 + (0.45/0.5) * justify), fontfamily = font_family),
       bg_params = list(fill=c(rep(c(stripe_colour, background_colour), length.out=nrow(left_side_data)), background_colour, background_colour, background_colour))
     ),
       colhead = list(fg_params = list(hjust = 0, x = 0.05,
@@ -88,7 +96,7 @@ forester <- function(left_side_data,
     )
   }else{
     theme <- gridExtra::ttheme_minimal(core=list(
-      fg_params = list(hjust = 0, x = 0.05, fontfamily = font_family),
+      fg_params = list(hjust = justify, x = (0.05 + (0.45/0.5) * justify), fontfamily = font_family),
       bg_params = list(fill=c(rep(c(background_colour, stripe_colour), length.out=nrow(left_side_data)), background_colour, background_colour, background_colour))
     ),
     colhead = list(fg_params = list(hjust = 0, x = 0.05,
