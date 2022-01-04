@@ -408,6 +408,7 @@ forester <- function(left_side_data,
               family = font_family, size = 3) +
       ggplot2::scale_y_continuous(expand = c(0,0), limits = c(-0.5, 1.75)) +
       ggplot2::scale_x_continuous(expand = c(0,0), limits = xlim) +
+      ggplot2::coord_cartesian(clip = "off") +
       ggplot2::theme(panel.background = ggplot2::element_rect(fill = "transparent"),
           plot.background = ggplot2::element_rect(fill = "transparent", color = NA),
           panel.grid.major = ggplot2::element_blank(),
