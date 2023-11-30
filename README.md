@@ -110,7 +110,6 @@ library(extrafont)
 #> Registering fonts with R
 
 loadfonts(device = "win")
-#> Roboto Condensed already registered with windowsFonts().
 windowsFonts("Fira Sans" = windowsFont("Fira Sans"))
 
 forester(left_side_data = table[,1:3],
@@ -300,8 +299,8 @@ of the plot (units are relative to the width of the table).
 
 ``` r
 library(ggplot2)
+#> Warning: package 'ggplot2' was built under R version 4.3.2
 library(tibble)
-#> Warning: package 'tibble' was built under R version 4.1.1
 
 ex_plot <- ggplot(tibble(x = rep(1:7, each = 15), y = rep(0:14, times = 7)), aes(x = x, y = y)) +
   geom_point()
@@ -323,7 +322,6 @@ If you’d like to cite forester, please use:
 
 ``` r
 citation("forester")
-#> 
 #> To cite forester in publications use:
 #> 
 #>   Boyes, Randy (2021). Forester: An R package for creating
@@ -341,11 +339,42 @@ citation("forester")
 #>   }
 ```
 
+## Papers Using forester
+
+1.  Damtew, Yohannes Tefera, et al. “Effects of high temperatures and
+    heatwaves on dengue fever: a systematic review and meta-analysis.”
+    Ebiomedicine 91 (2023).
+
+![](man/figures/paper_example1.jpg)
+
+2.  Petersen, Maria Skaalum, et al. “Clinical characteristics of the
+    Omicron variant-results from a Nationwide Symptoms Survey in the
+    Faroe Islands.” International Journal of Infectious Diseases 122
+    (2022): 636-643.
+
+![](man/figures/paper_example2.jpg)
+
+3.  Petersen, Maria Skaalum, et al. “Clinical characteristics of the
+    Omicron variant-results from a Nationwide Symptoms Survey in the
+    Faroe Islands.” International Journal of Infectious Diseases 122
+    (2022): 636-643.
+
+![](man/figures/paper_example3.png) 4. Xie, Quin Yuhui, et al. “Immune
+responses to gut bacteria associated with time to diagnosis and clinical
+response to T cell–directed therapy for type 1 diabetes prevention.”
+Science Translational Medicine 15.719 (2023): eadh0353.
+
+![](man/figures/paper_example4.png) 5. Suarez-Zdunek, Moises Alberto, et
+al. “High incidence of subclinical peripheral artery disease in people
+with HIV.” AIDS 36.10 (2022): 1355-1362.
+
+![](man/figures/paper_example5.png)
+
 ## References
 
 1.  Ray, K. K., Wright, R. S., Kallend, D., Koenig, W., Leiter, L. A.,
-    Raal, F. J., Bisch, J. A., Richardson, T., Jaros, M., Wijngaard, P.
-    L. J., Kastelein, J. J. P., & ORION-10 and ORION-11 Investigators.
-    (2020). Two Phase 3 Trials of Inclisiran in Patients with Elevated
-    LDL Cholesterol. The New England Journal of Medicine, 382(16),
-    1507–1519.
+    Raal, F. J., Bisch, J. A., Richardson, T., Jaros, M.,
+    Wijngaard, P. L. J., Kastelein, J. J. P., & ORION-10 and ORION-11
+    Investigators. (2020). Two Phase 3 Trials of Inclisiran in Patients
+    with Elevated LDL Cholesterol. The New England Journal of Medicine,
+    382(16), 1507–1519.
