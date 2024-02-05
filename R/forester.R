@@ -36,6 +36,7 @@
 #' @param center_ggplot A ggplot object to use instead of the central plot.
 #' @param lower_header_row Logical. If TRUE, drops the header down one row (In the table rather than above it, like the default value (FALSE))
 #' @param render_as String or Function. What output format should be used? Option is passed to ggplot2::ggsave() as the argument "device". Either pass a device function (e.g. png) or one of "eps", "ps", "tex" (pictex), "pdf", "jpeg", "tiff", "png", "bmp", "svg" or "wmf" (windows only).
+#' @param table_theme A gridExtra table theme. If specified, overwrites all table theme customization in other options. The default is a modified version of ttheme_minimal.
 #'
 #' @return image
 #' @importFrom rlang .data
@@ -77,27 +78,30 @@ forester <- function(left_side_data,
                     point_shapes = 16,
                     center_ggplot = NULL,
                     lower_header_row = FALSE,
-                    render_as = "png"){
+                    render_as = "png",
+                    table_theme = NULL){
 
-  if(!length(justify) == 1){
+  if (!length(justify) == 1) {
     justify <- c(justify[1:(length(justify) - 1)], 0, justify[length(justify)])
-    justify <- matrix(justify, ncol=length(justify), nrow=nrow(left_side_data) + 3, byrow=TRUE)
+    justify <- matrix(justify, ncol=length(justify), nrow = nrow(left_side_data) + 3, byrow=TRUE)
     justify <- as.vector(justify)
   }
 
-  if(lower_header_row == FALSE){
-    theme <- gridExtra::ttheme_minimal(core=list(
+  if (!is.null(table_theme)) {
+    theme <- table_theme
+  } else if (lower_header_row == FALSE) {
+    theme <- gridExtra::ttheme_minimal(core = list(
       fg_params = list(hjust = justify, x = (0.05 + (0.45/0.5) * justify), fontfamily = font_family),
-      bg_params = list(fill=c(rep(c(stripe_colour, background_colour), length.out=nrow(left_side_data)), background_colour, background_colour, background_colour))
+      bg_params = list(fill = c(rep(c(stripe_colour, background_colour), length.out = nrow(left_side_data)), background_colour, background_colour, background_colour))
     ),
       colhead = list(fg_params = list(hjust = 0, x = 0.05,
                                     fontfamily = font_family),
                    bg_params = list(fill = background_colour))
     )
   }else{
-    theme <- gridExtra::ttheme_minimal(core=list(
+    theme <- gridExtra::ttheme_minimal(core = list(
       fg_params = list(hjust = justify, x = (0.05 + (0.45/0.5) * justify), fontfamily = font_family),
-      bg_params = list(fill=c(rep(c(background_colour, stripe_colour), length.out=nrow(left_side_data)), background_colour, background_colour, background_colour))
+      bg_params = list(fill = c(rep(c(background_colour, stripe_colour), length.out=nrow(left_side_data)), background_colour, background_colour, background_colour))
     ),
     colhead = list(fg_params = list(hjust = 0, x = 0.05,
                                     fontfamily = font_family,
@@ -110,11 +114,11 @@ forester <- function(left_side_data,
                     ci_low = ci_low,
                     ci_high = ci_high)
 
-  if(lower_header_row){
+  if (lower_header_row){
     gdata <- tibble::add_row(gdata, .before = 1)
   }
 
-  if(is.null(right_side_data)){
+  if (is.null(right_side_data)){
     tdata <- gdata
 
     tdata <- dplyr::mutate_all(tdata, ~sprintf(.,
@@ -142,8 +146,8 @@ forester <- function(left_side_data,
     num_char_across <- 0
     width <- 0
 
-    for(i in 1:num_of_cols){
-      for(j in 1:num_of_rows){
+    for (i in 1:num_of_cols) {
+      for (j in 1:num_of_rows) {
         num_char_across[j] <- nchar(print_data[j, i])
       }
       width[i] <- max(max(num_char_across, na.rm = TRUE),
@@ -165,7 +169,7 @@ forester <- function(left_side_data,
 
     names <- colnames(print_data)
 
-    for (i in 1:num_of_cols){
+    for (i in 1:num_of_cols) {
       temp <- systemfonts::shape_string(print_data[[names[i]]], family = font_family)
       temp_col <- systemfonts::shape_string(names[i], family = font_family)
       width[i] <- max(max(temp$metrics$width, na.rm = TRUE),
@@ -176,7 +180,7 @@ forester <- function(left_side_data,
 
   # calculate widths for each side with the appropriate function
 
-  if(font_family == "mono"){
+  if (font_family == "mono") {
     left_width <- find_width_mono(left_side_data)
     right_width <- find_width_mono(right_side_data)
   }else{
@@ -191,7 +195,9 @@ forester <- function(left_side_data,
 
   tdata_print <- left_side_data
 
-  if(lower_header_row){rbind.data.frame(colnames(tdata_print), tdata_print)}
+  if (lower_header_row) {
+    rbind.data.frame(colnames(tdata_print), tdata_print)
+  }
 
   tdata_print$` ` <- paste(rep(" ", times = round(ggplot_width, 0)),
                            collapse = '')
@@ -209,12 +215,12 @@ forester <- function(left_side_data,
   mono_column <- function(table, col){
     col_indexes <- function(table, col, name="core-fg"){
       l <- table$layout
-      which(l$l==col & l$name==name)
+      which(l$l == col & l$name == name)
     }
 
     ind <- col_indexes(table, col, "core-fg")
 
-    for(i in ind){
+    for (i in ind) {
       table$grobs[i][[1]][["gp"]] <- grid::gpar(fontfamily = "mono")
     }
     return(table)
@@ -223,17 +229,17 @@ forester <- function(left_side_data,
   white_column <- function(table, col){
     col_indexes <- function(table, col, name="core-bg"){
       l <- table$layout
-      which(l$l==col & l$name==name)
+      which(l$l == col & l$name == name)
     }
 
     ind <- col_indexes(table, col, "core-bg")
     ind_fg <- col_indexes(table, col, "core-fg")
 
-    for(i in ind){
+    for (i in ind) {
       table$grobs[i][[1]][["gp"]] <- grid::gpar(fill = background_colour, col = background_colour)
     }
 
-    for(i in ind_fg){
+    for (i in ind_fg) {
       table$grobs[i][[1]][["gp"]] <- grid::gpar(fontfamily = "mono")
     }
     return(table)
@@ -275,7 +281,7 @@ forester <- function(left_side_data,
 
   g_oob <- tibble::tibble()
 
-  if(!is.null(xlim)){
+  if (!is.null(xlim)) {
     oob_arrows <- gdata
 
     oob_arrows$x_low <- xlim[1]
@@ -284,18 +290,18 @@ forester <- function(left_side_data,
     ra <- sum(oob_arrows$ci_high > oob_arrows$x_high, na.rm = T) > 0
     la <- sum(oob_arrows$ci_low < oob_arrows$x_low, na.rm = T) > 0
 
-    if(ra){
+    if (ra) {
       right_arrows <- dplyr::select(dplyr::filter(oob_arrows, ci_high > .data$x_high), start = estimate, end = .data$x_high, y = .data$row_num)
     }
-    if(la){
+    if (la) {
       left_arrows <- dplyr::select(dplyr::filter(oob_arrows, ci_low < .data$x_low), start = estimate, end = .data$x_low, y = .data$row_num)
     }
 
-    if(ra && !la){
+    if (ra && !la) {
       g_oob <- right_arrows
-    }else if(!ra && la){
+    }else if (!ra && la) {
       g_oob <- left_arrows
-    }else if(ra && la){
+    }else if (ra && la) {
       g_oob <- rbind.data.frame(right_arrows, left_arrows)
     }
   }
@@ -330,7 +336,7 @@ forester <- function(left_side_data,
 
   ### add oob arrows if required ###
 
-  if(nrow(g_oob) > 0){
+  if (nrow(g_oob) > 0) {
     center <- center +
       ggplot2::geom_segment(data = g_oob,
                             ggplot2::aes(x = start,
@@ -344,7 +350,7 @@ forester <- function(left_side_data,
 
   ####### fix plot zoom ######
 
-  if(is.null(xlim)){
+  if (is.null(xlim)) {
     center <- center + ggplot2::coord_cartesian(ylim = c(y_low, y_high))
   }else{
     center <- center + ggplot2::coord_cartesian(ylim = c(y_low, y_high), xlim = xlim)
@@ -352,8 +358,8 @@ forester <- function(left_side_data,
 
   ######## handle breaks, log vs linear scales ########
 
-  if(x_scale_linear){
-    if(is.null(xbreaks)){
+  if (x_scale_linear) {
+    if (is.null(xbreaks)) {
       center <- center + ggplot2::scale_x_continuous(labels = scales::number_format(accuracy = 0.1),
                                             expand = c(0,0))
     }else{
@@ -362,7 +368,7 @@ forester <- function(left_side_data,
                                             expand = c(0,0))
     }
   }else{
-    if(is.null(xbreaks)){
+    if (is.null(xbreaks)) {
       center <- center + ggplot2::scale_x_log10(labels = scales::number_format(accuracy = 0.1),
                                             expand = c(0,0))
     }else{
@@ -374,10 +380,10 @@ forester <- function(left_side_data,
 
   #### allow overwrite of central plot #######################
 
-  if(!is.null(center_ggplot)){center <- center_ggplot}
+  if(!is.null(center_ggplot)) {center <- center_ggplot}
 
   ######################## Arrows ##############################
-  if(arrows == TRUE){
+  if (arrows == TRUE) {
 
     # this df has the text labels
     xlab_df <- data.frame(text = arrow_labels,
@@ -388,7 +394,7 @@ forester <- function(left_side_data,
     a_small_amount <- abs(xlim[1] - xlim[2])/35
 
     # this df has the arrows
-    if(x_scale_linear == TRUE){
+    if (x_scale_linear == TRUE) {
       arrow_df <- data.frame(id = c(1,2),
                            xstart = c(null_line_at - a_small_amount, null_line_at + a_small_amount),
                            xend = c(xlim[1] + a_small_amount, xlim[2] - a_small_amount),
@@ -424,7 +430,7 @@ forester <- function(left_side_data,
           axis.ticks.x = ggplot2::element_blank(),
           axis.line.x = ggplot2::element_blank())
 
-    if(x_scale_linear == FALSE){
+    if (x_scale_linear == FALSE) {
       arrows_plot <- arrows_plot + ggplot2::scale_x_log10(expand = c(0,0), limits = xlim)
     }
 
@@ -436,7 +442,7 @@ forester <- function(left_side_data,
   png_width <- total_width/10 + nudge_x
   png_height <- (nrow(gdata) + 3)/3.8
 
-  if(is.null(add_plot)){
+  if (is.null(add_plot)) {
 
     table_final <- mono_column(gridExtra::tableGrob(tdata_print, theme = theme, rows = NULL), ncol(left_side_data) + 1)
 
@@ -452,7 +458,7 @@ forester <- function(left_side_data,
                              top = 1,
                              bottom = 0.35/nrow(gdata))
 
-    if(arrows == TRUE){
+    if (arrows == TRUE) {
       final <- final + patchwork::inset_element(arrows_plot,
                                               align_to = "full",
                                               left = (left_width/total_width),
@@ -530,7 +536,7 @@ forester <- function(left_side_data,
                                top = 1,
                                bottom = 0.35/nrow(gdata))
 
-    if(arrows == TRUE){
+    if (arrows == TRUE) {
       final <- final + patchwork::inset_element(arrows_plot,
                                                 align_to = "full",
                                                 left = (left_width/new_full_width),
@@ -541,7 +547,7 @@ forester <- function(left_side_data,
   }
 
   ######### save the plot as a png, then display it with magick ################
-  if(!(render_as == "rmarkdown")){
+  if (!(render_as == "rmarkdown")) {
     ggplot2::ggsave(
          dpi = dpi,
          height = png_height + nudge_height,
@@ -551,7 +557,7 @@ forester <- function(left_side_data,
          device = render_as
     )
 
-    if(display == TRUE){
+    if (display == TRUE) {
       system(paste0('open "', file_path, '"'))
     }
   }else{
